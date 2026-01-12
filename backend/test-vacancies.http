@@ -1,0 +1,166 @@
+### Vacancy Management API Tests
+### Prerequisites: 
+### 1. Server running on http://localhost:3000
+### 2. Database seeded with test data
+### 3. Valid JWT tokens for different roles
+
+@baseUrl = http://localhost:3000/api
+@publicUrl = http://localhost:3000/api/public
+
+### Variables (Replace with actual tokens and IDs)
+@recruiterToken = YOUR_RECRUITER_TOKEN_HERE
+@adminToken = YOUR_ADMIN_TOKEN_HERE
+@managerToken = YOUR_MANAGER_TOKEN_HERE
+@approvedRequestId = YOUR_APPROVED_REQUEST_ID_HERE
+@vacancyId = YOUR_VACANCY_ID_HERE
+@departmentId = YOUR_DEPARTMENT_ID_HERE
+
+###############################################
+# RECRUITER ENDPOINTS
+###############################################
+
+### 1. Create Vacancy from Approved Request (Recruiter)
+POST {{baseUrl}}/vacancies
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "vacancyRequestId": "{{approvedRequestId}}",
+  "title": "Senior Software Engineer",
+  "description": "We are looking for an experienced software engineer to join our team",
+  "requirements": [
+    "5+ years of experience in software development",
+    "Strong knowledge of TypeScript and Node.js",
+    "Experience with React and modern frontend frameworks",
+    "Excellent problem-solving skills"
+  ],
+  "responsibilities": [
+    "Lead development of new features",
+    "Conduct code reviews",
+    "Mentor junior developers",
+    "Collaborate with product team"
+  ],
+  "qualifications": [
+    "Bachelor's degree in Computer Science or related field",
+    "Master's degree preferred"
+  ],
+  "benefits": [
+    "Health insurance",
+    "Remote work options",
+    "Professional development budget",
+    "Flexible working hours"
+  ],
+  "salaryMin": 80000,
+  "salaryMax": 120000,
+  "location": "Remote",
+  "employmentType": "FULL_TIME",
+  "experienceYears": 5,
+  "educationLevel": "Bachelor's",
+  "deadline": "2024-12-31T23:59:59Z"
+}
+
+### 2. Update Vacancy (Recruiter)
+PUT {{baseUrl}}/vacancies/{{vacancyId}}
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "title": "Senior Software Engineer - Updated",
+  "salaryMax": 130000,
+  "benefits": [
+    "Health insurance",
+    "Remote work options",
+    "Professional development budget",
+    "Flexible working hours",
+    "Stock options"
+  ]
+}
+
+### 3. Publish Vacancy (Recruiter)
+POST {{baseUrl}}/vacancies/{{vacancyId}}/publish
+Authorization: Bearer {{recruiterToken}}
+
+### 4. Unpublish Vacancy (Recruiter)
+POST {{baseUrl}}/vacancies/{{vacancyId}}/unpublish
+Authorization: Bearer {{recruiterToken}}
+
+### 5. Close Vacancy (Recruiter)
+POST {{baseUrl}}/vacancies/{{vacancyId}}/close
+Authorization: Bearer {{recruiterToken}}
+
+### 6. Get All Vacancies (Recruiter)
+GET {{baseUrl}}/vacancies
+Authorization: Bearer {{recruiterToken}}
+
+### 7. Get All Vacancies with Filters (Recruiter)
+GET {{baseUrl}}/vacancies?status=OPEN&departmentId={{departmentId}}&keyword=engineer&page=1&limit=10
+Authorization: Bearer {{recruiterToken}}
+
+### 8. Get Vacancy by ID (Recruiter)
+GET {{baseUrl}}/vacancies/{{vacancyId}}
+Authorization: Bearer {{recruiterToken}}
+
+###############################################
+# ADMIN ENDPOINTS
+###############################################
+
+### 9. Create Vacancy (Admin)
+POST {{baseUrl}}/vacancies
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "vacancyRequestId": "{{approvedRequestId}}",
+  "title": "Product Manager",
+  "description": "Looking for an experienced product manager",
+  "requirements": ["3+ years PM experience"],
+  "employmentType": "FULL_TIME"
+}
+
+### 10. Delete Vacancy (Admin only)
+DELETE {{baseUrl}}/vacancies/{{vacancyId}}
+Authorization: Bearer {{adminToken}}
+
+###############################################
+# PUBLIC ENDPOINTS (No Authentication)
+###############################################
+
+### 11. Get Public Vacancies (No Auth)
+GET {{publicUrl}}/vacancies
+
+### 12. Get Public Vacancies with Filters (No Auth)
+GET {{publicUrl}}/vacancies?keyword=engineer&employmentType=FULL_TIME&location=Remote&page=1&limit=10
+
+### 13. Get Public Vacancy by ID (No Auth)
+GET {{publicUrl}}/vacancies/{{vacancyId}}
+
+###############################################
+# ERROR CASES
+###############################################
+
+### 14. Create Vacancy from Non-Approved Request (Should Fail)
+POST {{baseUrl}}/vacancies
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "vacancyRequestId": "non-approved-request-id"
+}
+
+### 15. Update Closed Vacancy (Should Fail)
+PUT {{baseUrl}}/vacancies/{{vacancyId}}
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "title": "This should fail if vacancy is closed"
+}
+
+### 16. Publish Already Published Vacancy (Should Fail)
+POST {{baseUrl}}/vacancies/{{vacancyId}}/publish
+Authorization: Bearer {{recruiterToken}}
+
+### 17. Access Vacancy Endpoints as Manager (Should Fail - 403)
+GET {{baseUrl}}/vacancies
+Authorization: Bearer {{managerToken}}
+

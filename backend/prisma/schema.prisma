@@ -1,0 +1,417 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum Role {
+  APPLICANT
+  RECRUITER
+  INTERVIEWER
+  MANAGER
+  ADMIN
+}
+
+enum VacancyRequestStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  DECLINED
+  CANCELLED
+}
+
+enum VacancyStatus {
+  OPEN
+  CLOSED
+  ON_HOLD
+}
+
+enum ApplicationStatus {
+  APPLIED
+  UNDER_REVIEW
+  SHORTLISTED
+  TEST_INVITED
+  TEST_COMPLETED
+  INTERVIEW_R1
+  INTERVIEW_R2
+  FINAL_DECISION
+  REJECTED
+  HIRED
+  WITHDRAWN
+}
+
+enum InterviewStatus {
+  SCHEDULED
+  RESCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum TestType {
+  EXTERNAL_LINK  // External test platform (HackerRank, Codility, etc.)
+  INTERNAL_QUIZ  // Internal simple quiz with questions
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  SHORT_ANSWER
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  role      Role     @default(APPLICANT)
+  phone     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  applications           Application[]
+  cvs                    CV[]
+  motivationLetters      MotivationLetter[]
+  vacancyRequests        VacancyRequest[]
+  vacanciesCreated       Vacancy[]              @relation("VacancyCreator")
+  evaluationsGiven       Evaluation[]           @relation("EvaluatorRelation")
+  managerRecommendations ManagerRecommendation[] @relation("ManagerRecommendationRelation")
+  departmentsManaged     Department[]           @relation("DepartmentManager")
+  testsCreated           Test[]
+  testAttempts           TestAttempt[]
+  interviewsScheduled    Interview[]            @relation("InterviewSchedulerRelation")
+  interviewerAssignments InterviewerAssignment[] @relation("InterviewerAssignmentRelation")
+  auditLogs              AuditLog[]
+  notificationsSent      Notification[]         @relation("NotificationSender")
+  notificationsReceived  Notification[]         @relation("NotificationReceiver")
+}
+
+model Department {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  managerId   String?
+  manager     User?    @relation("DepartmentManager", fields: [managerId], references: [id], onDelete: SetNull)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  vacancyRequests VacancyRequest[]
+  vacancies       Vacancy[]
+
+  @@index([managerId])
+}
+
+model VacancyRequest {
+  id           String                @id @default(uuid())
+  title        String
+  description  String
+  departmentId String
+  department   Department            @relation(fields: [departmentId], references: [id])
+  requestedBy  String
+  requester    User                  @relation(fields: [requestedBy], references: [id])
+  status       VacancyRequestStatus  @default(DRAFT)
+  justification String?
+  numberOfPositions Int               @default(1)
+  requiredSkills    String[]
+  experienceLevel   String?
+  salaryRange       String?
+  approvedAt        DateTime?
+  declinedReason    String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  // Relations
+  vacancy Vacancy?
+}
+
+model Vacancy {
+  id                String         @id @default(uuid())
+  title             String
+  description       String
+  departmentId      String
+  department        Department     @relation(fields: [departmentId], references: [id])
+  vacancyRequestId  String?        @unique
+  vacancyRequest    VacancyRequest? @relation(fields: [vacancyRequestId], references: [id])
+  createdById       String
+  createdBy         User           @relation("VacancyCreator", fields: [createdById], references: [id])
+  status            VacancyStatus  @default(OPEN)
+  location          String?
+  employmentType    String?
+  salaryRange       String?
+  requiredSkills    String[]
+  responsibilities  String?
+  qualifications    String?
+  benefits          String?
+  applicationDeadline DateTime?
+  numberOfPositions   Int          @default(1)
+  publishedAt         DateTime?
+  closedAt            DateTime?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  // Relations
+  applications Application[]
+  tests        Test[]
+  interviews   Interview[]
+}
+
+model Application {
+  id                   String            @id @default(uuid())
+  vacancyId            String
+  vacancy              Vacancy           @relation(fields: [vacancyId], references: [id], onDelete: Cascade)
+  applicantId          String
+  applicant            User              @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+  status               ApplicationStatus @default(APPLIED)
+  cvId                 String?
+  cv                   CV?               @relation(fields: [cvId], references: [id])
+  motivationLetterId   String?
+  motivationLetter     MotivationLetter? @relation(fields: [motivationLetterId], references: [id])
+  notes                String?
+  appliedAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  // Relations
+  evaluations          Evaluation[]
+  managerRecommendations ManagerRecommendation[]
+  testAttempts         TestAttempt[]
+  interviews           Interview[]
+
+  @@unique([vacancyId, applicantId])
+  @@index([status])
+  @@index([appliedAt])
+}
+
+model CV {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // File-based CV
+  fileName    String?
+  filePath    String?
+  fileSize    Int?
+  mimeType    String?
+
+  // Structured CV data (JSON)
+  structuredData Json?  // Contains: personalInfo, education, experience, skills, etc.
+
+  isDefault   Boolean  @default(false)
+  uploadedAt  DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  applications Application[]
+
+  @@index([userId])
+}
+
+model MotivationLetter {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content     String
+  vacancyId   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  applications Application[]
+
+  @@index([userId])
+}
+
+model Evaluation {
+  id            String   @id @default(uuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  evaluatorId   String
+  evaluator     User     @relation("EvaluatorRelation", fields: [evaluatorId], references: [id])
+  rating        Int      // 1-10 scale
+  comments      String?
+  strengths     String?
+  weaknesses    String?
+  recommendation String? // REJECT, MAYBE, PROCEED, STRONG_YES
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([applicationId])
+  @@index([evaluatorId])
+}
+
+model ManagerRecommendation {
+  id               String   @id @default(uuid())
+  applicationId    String
+  application      Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  managerId        String
+  manager          User     @relation("ManagerRecommendationRelation", fields: [managerId], references: [id])
+  comment          String
+  suggestedDecision String  // REJECT, PROCEED_WITH_CAUTION, RECOMMEND_HIRE, STRONG_RECOMMEND_HIRE
+  confidential     Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([applicationId])
+  @@index([managerId])
+}
+
+model Test {
+  id          String   @id @default(uuid())
+  vacancyId   String
+  vacancy     Vacancy  @relation(fields: [vacancyId], references: [id], onDelete: Cascade)
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  type        TestType @default(INTERNAL_QUIZ)
+  title       String
+  description String?
+  duration    Int?     // Duration in minutes (optional for external links)
+  passingScore Int?    // Minimum score to pass (optional for external links)
+  totalScore  Int?     // Maximum possible score (for internal quiz)
+  instructions String?
+
+  // For EXTERNAL_LINK type
+  externalUrl String?  // URL to external test platform
+
+  // For INTERNAL_QUIZ type
+  questions   Json?    // Array of questions with answers
+
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  testAttempts TestAttempt[]
+
+  @@index([vacancyId])
+  @@index([type])
+}
+
+model TestAttempt {
+  id            String   @id @default(uuid())
+  testId        String
+  test          Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  candidateId   String
+  candidate     User     @relation(fields: [candidateId], references: [id])
+
+  // For INTERNAL_QUIZ
+  answers       Json?    // Store answers as JSON
+  score         Int?     // Auto-calculated for internal quiz
+
+  // For EXTERNAL_LINK
+  externalCompleted Boolean @default(false) // Marked by applicant
+  externalNotes String?  // Optional notes from applicant
+
+  // Common fields
+  isPassed      Boolean?
+  startedAt     DateTime @default(now())
+  completedAt   DateTime?
+  feedback      String?  // Recruiter feedback
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([testId])
+  @@index([applicationId])
+  @@index([candidateId])
+}
+
+model Interview {
+  id            String          @id @default(uuid())
+  applicationId String
+  application   Application     @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  vacancyId     String
+  vacancy       Vacancy         @relation(fields: [vacancyId], references: [id], onDelete: Cascade)
+  title         String
+  description   String?
+  round         Int             @default(1) // Interview round number
+  scheduledAt   DateTime
+  duration      Int             // Duration in minutes
+  location      String?         // Physical location or meeting link
+  status        InterviewStatus @default(SCHEDULED)
+  notes         String?
+  cancelReason  String?         // Reason for cancellation
+  rescheduleReason String?      // Reason for rescheduling
+  completedAt   DateTime?
+  scheduledById String
+  scheduledBy   User            @relation("InterviewSchedulerRelation", fields: [scheduledById], references: [id])
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  // Relations
+  interviewers  InterviewerAssignment[]
+
+  @@index([applicationId])
+  @@index([vacancyId])
+  @@index([scheduledAt])
+  @@index([status])
+}
+
+model InterviewerAssignment {
+  id             String    @id @default(uuid())
+  interviewId    String
+  interview      Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  interviewerId  String
+  interviewer    User      @relation("InterviewerAssignmentRelation", fields: [interviewerId], references: [id])
+  feedback       String?
+  rating         Int?      // Interview rating (1-10)
+  recommendation String?   // REJECT, MAYBE, PROCEED, STRONG_YES
+  attended       Boolean   @default(false)
+  completedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([interviewId, interviewerId])
+  @@index([interviewId])
+  @@index([interviewerId])
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action      String   // e.g., "CREATE", "UPDATE", "DELETE"
+  entity      String   // e.g., "Vacancy", "Application"
+  entityId    String
+  changes     Json?    // Store before/after values
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  senderId    String?
+  sender      User?    @relation("NotificationSender", fields: [senderId], references: [id], onDelete: SetNull)
+  receiverId  String
+  receiver    User     @relation("NotificationReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  type        String   // e.g., "APPLICATION_RECEIVED", "INTERVIEW_SCHEDULED"
+  title       String
+  message     String
+  isRead      Boolean  @default(false)
+  readAt      DateTime?
+  metadata    Json?    // Additional data
+  createdAt   DateTime @default(now())
+
+  @@index([receiverId, isRead])
+  @@index([createdAt])
+}
+

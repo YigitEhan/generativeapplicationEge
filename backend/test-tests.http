@@ -1,0 +1,167 @@
+### Test Functionality Testing
+### Make sure to replace tokens and IDs with actual values from your database
+
+@baseUrl = http://localhost:3000/api
+@recruiterToken = YOUR_RECRUITER_TOKEN
+@applicantToken = YOUR_APPLICANT_TOKEN
+@vacancyId = YOUR_VACANCY_ID
+@applicationId = YOUR_APPLICATION_ID
+@testId = YOUR_TEST_ID
+
+### ============================================
+### RECRUITER: Create External Link Test
+### ============================================
+POST {{baseUrl}}/vacancies/{{vacancyId}}/test
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "type": "EXTERNAL_LINK",
+  "title": "HackerRank Coding Challenge",
+  "description": "Complete the coding challenge on HackerRank",
+  "instructions": "You have 2 hours to complete the challenge. Click the link below to start.",
+  "externalUrl": "https://www.hackerrank.com/test/abc123",
+  "duration": 120,
+  "passingScore": 70
+}
+
+### ============================================
+### RECRUITER: Create Internal Quiz Test
+### ============================================
+POST {{baseUrl}}/vacancies/{{vacancyId}}/test
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "type": "INTERNAL_QUIZ",
+  "title": "JavaScript Fundamentals Quiz",
+  "description": "Test your knowledge of JavaScript basics",
+  "instructions": "Answer all questions to the best of your ability. You have 30 minutes.",
+  "duration": 30,
+  "passingScore": 70,
+  "questions": [
+    {
+      "type": "MULTIPLE_CHOICE",
+      "question": "What is the output of: typeof null?",
+      "points": 10,
+      "options": ["null", "undefined", "object", "number"],
+      "correctAnswer": "object"
+    },
+    {
+      "type": "TRUE_FALSE",
+      "question": "JavaScript is a statically typed language.",
+      "points": 5,
+      "correctAnswer": false
+    },
+    {
+      "type": "SHORT_ANSWER",
+      "question": "What keyword is used to declare a block-scoped variable?",
+      "points": 5,
+      "correctAnswer": "let",
+      "acceptableAnswers": ["let", "const"]
+    },
+    {
+      "type": "MULTIPLE_CHOICE",
+      "question": "Which method is used to add an element to the end of an array?",
+      "points": 10,
+      "options": ["push()", "pop()", "shift()", "unshift()"],
+      "correctAnswer": "push()"
+    }
+  ]
+}
+
+### ============================================
+### RECRUITER: Get All Tests for Vacancy
+### ============================================
+GET {{baseUrl}}/vacancies/{{vacancyId}}/tests
+Authorization: Bearer {{recruiterToken}}
+
+### ============================================
+### RECRUITER: Invite Applicant to Test
+### ============================================
+POST {{baseUrl}}/applications/{{applicationId}}/test-invite
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "testId": "{{testId}}",
+  "message": "Please complete this test within 48 hours."
+}
+
+### ============================================
+### RECRUITER: Get Test Attempt
+### ============================================
+GET {{baseUrl}}/applications/{{applicationId}}/test-attempt
+Authorization: Bearer {{recruiterToken}}
+
+### ============================================
+### APPLICANT: Get Test (without answers)
+### ============================================
+GET {{baseUrl}}/applications/{{applicationId}}/test
+Authorization: Bearer {{applicantToken}}
+
+### ============================================
+### APPLICANT: Submit Internal Quiz
+### ============================================
+POST {{baseUrl}}/applications/{{applicationId}}/test/submit
+Authorization: Bearer {{applicantToken}}
+Content-Type: application/json
+
+{
+  "answers": [
+    {
+      "questionId": "QUESTION_ID_1",
+      "answer": "object"
+    },
+    {
+      "questionId": "QUESTION_ID_2",
+      "answer": false
+    },
+    {
+      "questionId": "QUESTION_ID_3",
+      "answer": "let"
+    },
+    {
+      "questionId": "QUESTION_ID_4",
+      "answer": "push()"
+    }
+  ]
+}
+
+### ============================================
+### APPLICANT: Mark External Test Complete
+### ============================================
+POST {{baseUrl}}/applications/{{applicationId}}/test/mark-complete
+Authorization: Bearer {{applicantToken}}
+Content-Type: application/json
+
+{
+  "notes": "Completed the HackerRank challenge. Score: 85/100"
+}
+
+### ============================================
+### ERROR CASES
+### ============================================
+
+### Try to invite to non-existent test
+POST {{baseUrl}}/applications/{{applicationId}}/test-invite
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "testId": "00000000-0000-0000-0000-000000000000"
+}
+
+### Try to submit quiz twice
+POST {{baseUrl}}/applications/{{applicationId}}/test/submit
+Authorization: Bearer {{applicantToken}}
+Content-Type: application/json
+
+{
+  "answers": []
+}
+
+### Applicant tries to access another applicant's test
+GET {{baseUrl}}/applications/ANOTHER_APPLICATION_ID/test
+Authorization: Bearer {{applicantToken}}
+

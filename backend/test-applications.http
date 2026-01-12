@@ -1,0 +1,175 @@
+### Application Flow Tests
+### Prerequisites: Server running on http://localhost:3000
+### Use REST Client extension in VS Code
+
+@baseUrl = http://localhost:3000/api
+@recruiterToken = YOUR_RECRUITER_TOKEN_HERE
+@applicantToken = YOUR_APPLICANT_TOKEN_HERE
+@vacancyId = YOUR_VACANCY_ID_HERE
+
+### ============================================
+### APPLICANT ENDPOINTS
+### ============================================
+
+### 1. Apply to vacancy with CV file upload
+POST {{baseUrl}}/applications
+Authorization: Bearer {{applicantToken}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="vacancyId"
+
+{{vacancyId}}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="motivationLetter"
+
+I am very interested in this position and believe my skills align perfectly with the requirements.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="cvFile"; filename="resume.pdf"
+Content-Type: application/pdf
+
+< ./test-files/sample-cv.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 2. Apply with structured CV (JSON)
+POST {{baseUrl}}/applications
+Authorization: Bearer {{applicantToken}}
+Content-Type: application/json
+
+{
+  "vacancyId": "{{vacancyId}}",
+  "motivationLetter": "I am excited to apply for this position...",
+  "structuredCV": {
+    "personalInfo": {
+      "fullName": "John Doe",
+      "email": "john.doe@example.com",
+      "phone": "+1234567890",
+      "location": "New York, NY",
+      "linkedIn": "https://linkedin.com/in/johndoe",
+      "portfolio": "https://johndoe.dev"
+    },
+    "summary": "Experienced software engineer with 5+ years in full-stack development",
+    "education": [
+      {
+        "institution": "MIT",
+        "degree": "Bachelor of Science",
+        "field": "Computer Science",
+        "startDate": "2015-09",
+        "endDate": "2019-06",
+        "gpa": "3.8"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Tech Corp",
+        "position": "Senior Software Engineer",
+        "location": "San Francisco, CA",
+        "startDate": "2019-07",
+        "current": true,
+        "description": "Lead development of microservices architecture",
+        "achievements": [
+          "Reduced API response time by 40%",
+          "Mentored 5 junior developers"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": ["TypeScript", "React", "Node.js", "PostgreSQL", "Docker"],
+      "languages": [
+        {
+          "language": "English",
+          "proficiency": "NATIVE"
+        },
+        {
+          "language": "Spanish",
+          "proficiency": "INTERMEDIATE"
+        }
+      ],
+      "soft": ["Leadership", "Communication", "Problem Solving"]
+    },
+    "certifications": [
+      {
+        "name": "AWS Certified Solutions Architect",
+        "issuer": "Amazon Web Services",
+        "date": "2022-03",
+        "credentialId": "ABC123"
+      }
+    ],
+    "projects": [
+      {
+        "name": "E-commerce Platform",
+        "description": "Built scalable e-commerce platform serving 1M+ users",
+        "technologies": ["React", "Node.js", "MongoDB"],
+        "url": "https://github.com/johndoe/ecommerce"
+      }
+    ]
+  }
+}
+
+### 3. Get my applications (list)
+GET {{baseUrl}}/applications/mine?status=APPLIED&page=1&limit=10
+Authorization: Bearer {{applicantToken}}
+
+### 4. Get my application detail with timeline
+GET {{baseUrl}}/applications/mine/{{applicationId}}
+Authorization: Bearer {{applicantToken}}
+
+### 5. Withdraw application
+POST {{baseUrl}}/applications/{{applicationId}}/withdraw
+Authorization: Bearer {{applicantToken}}
+Content-Type: application/json
+
+{
+  "reason": "I have accepted another offer. Thank you for your consideration."
+}
+
+### ============================================
+### RECRUITER ENDPOINTS
+### ============================================
+
+### 6. Get all applications for a vacancy
+GET {{baseUrl}}/vacancies/{{vacancyId}}/applications?status=APPLIED&page=1&limit=20
+Authorization: Bearer {{recruiterToken}}
+
+### 7. Get application detail (Recruiter)
+GET {{baseUrl}}/applications/{{applicationId}}
+Authorization: Bearer {{recruiterToken}}
+
+### 8. Update application status
+PUT {{baseUrl}}/applications/{{applicationId}}/status
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "status": "SCREENING",
+  "notes": "Candidate has strong technical background. Moving to screening phase."
+}
+
+### 9. Download CV file
+GET {{baseUrl}}/applications/cv/{{cvId}}/download
+Authorization: Bearer {{recruiterToken}}
+
+### ============================================
+### ERROR CASES
+### ============================================
+
+### 10. Apply without CV (should fail)
+POST {{baseUrl}}/applications
+Authorization: Bearer {{applicantToken}}
+Content-Type: application/json
+
+{
+  "vacancyId": "{{vacancyId}}",
+  "motivationLetter": "I want to apply"
+}
+
+### 11. Apply to same vacancy twice (should fail)
+POST {{baseUrl}}/applications
+Authorization: Bearer {{applicantToken}}
+Content-Type: application/json
+
+{
+  "vacancyId": "{{vacancyId}}",
+  "structuredCV": { "personalInfo": { "fullName": "Test", "email": "test@test.com" } }
+}
+

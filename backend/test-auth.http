@@ -1,0 +1,176 @@
+### Authentication Testing
+### Use this file with REST Client extension in VS Code or similar tools
+
+@baseUrl = http://localhost:3000/api
+@adminToken = 
+@applicantToken = 
+
+### ============================================
+### PUBLIC ENDPOINTS
+### ============================================
+
+### 1. Register a new applicant (Public)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "newapplicant@test.com",
+  "password": "SecurePass123",
+  "firstName": "Test",
+  "lastName": "Applicant",
+  "phone": "+1234567890"
+}
+
+### 2. Login as Admin
+# @name loginAdmin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@recruitment.com",
+  "password": "admin123"
+}
+
+### 3. Login as Applicant
+# @name loginApplicant
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "applicant@recruitment.com",
+  "password": "applicant123"
+}
+
+### 4. Login as Manager
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "manager@recruitment.com",
+  "password": "manager123"
+}
+
+### 5. Login as Recruiter
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "recruiter@recruitment.com",
+  "password": "recruiter123"
+}
+
+### 6. Login as Interviewer
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "interviewer@recruitment.com",
+  "password": "interviewer123"
+}
+
+### ============================================
+### PROTECTED ENDPOINTS (Requires Authentication)
+### ============================================
+
+### 7. Get current user profile (requires auth)
+GET {{baseUrl}}/auth/me
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 8. Get current user - Admin
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 9. Get current user - Applicant
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{loginApplicant.response.body.token}}
+
+### ============================================
+### ADMIN ONLY ENDPOINTS
+### ============================================
+
+### 10. Create a new Recruiter (Admin only)
+POST {{baseUrl}}/auth/users
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "email": "newrecruiter@company.com",
+  "password": "SecurePass123",
+  "firstName": "New",
+  "lastName": "Recruiter",
+  "role": "RECRUITER",
+  "phone": "+1987654321"
+}
+
+### 11. Create a new Manager (Admin only)
+POST {{baseUrl}}/auth/users
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "email": "newmanager@company.com",
+  "password": "SecurePass123",
+  "firstName": "New",
+  "lastName": "Manager",
+  "role": "MANAGER",
+  "phone": "+1987654322"
+}
+
+### 12. Create a new Interviewer (Admin only)
+POST {{baseUrl}}/auth/users
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "email": "newinterviewer@company.com",
+  "password": "SecurePass123",
+  "firstName": "New",
+  "lastName": "Interviewer",
+  "role": "INTERVIEWER",
+  "phone": "+1987654323"
+}
+
+### 13. Get all users (Admin only)
+GET {{baseUrl}}/auth/users
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 14. Get all recruiters (Admin only)
+GET {{baseUrl}}/auth/users?role=RECRUITER
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 15. Get all applicants (Admin only)
+GET {{baseUrl}}/auth/users?role=APPLICANT
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 16. Get user by ID (Admin only) - Replace with actual user ID
+GET {{baseUrl}}/auth/users/USER_ID_HERE
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 17. Deactivate user (Admin only) - Replace with actual user ID
+PATCH {{baseUrl}}/auth/users/USER_ID_HERE/deactivate
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 18. Activate user (Admin only) - Replace with actual user ID
+PATCH {{baseUrl}}/auth/users/USER_ID_HERE/activate
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### ============================================
+### ERROR CASES
+### ============================================
+
+### 19. Try to access protected route without token (should fail with 401)
+GET {{baseUrl}}/auth/me
+
+### 20. Try to create user as applicant (should fail with 403)
+POST {{baseUrl}}/auth/users
+Authorization: Bearer {{loginApplicant.response.body.token}}
+Content-Type: application/json
+
+{
+  "email": "unauthorized@test.com",
+  "password": "SecurePass123",
+  "firstName": "Should",
+  "lastName": "Fail",
+  "role": "ADMIN"
+}
+

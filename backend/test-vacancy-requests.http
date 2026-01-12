@@ -1,0 +1,146 @@
+### VacancyRequest API Testing
+### Make sure the server is running on http://localhost:3000
+
+@baseUrl = http://localhost:3000/api
+@adminToken = YOUR_ADMIN_TOKEN_HERE
+@managerToken = YOUR_MANAGER_TOKEN_HERE
+@recruiterToken = YOUR_RECRUITER_TOKEN_HERE
+
+### 1. Login as Manager
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "manager@recruitment.com",
+  "password": "manager123"
+}
+
+### 2. Login as Recruiter
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "recruiter@recruitment.com",
+  "password": "recruiter123"
+}
+
+### 3. Login as Admin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@recruitment.com",
+  "password": "admin123"
+}
+
+### 4. Create Vacancy Request (Manager) - DRAFT
+POST {{baseUrl}}/vacancy-requests
+Authorization: Bearer {{managerToken}}
+Content-Type: application/json
+
+{
+  "title": "Senior Software Engineer",
+  "description": "We need an experienced software engineer to lead our development team",
+  "departmentId": "DEPARTMENT_ID_HERE",
+  "justification": "Team expansion due to increased workload",
+  "numberOfPositions": 2,
+  "requiredSkills": ["JavaScript", "TypeScript", "React", "Node.js"],
+  "experienceLevel": "Senior (5+ years)",
+  "salaryRange": "$100,000 - $130,000",
+  "status": "DRAFT"
+}
+
+### 5. Create Vacancy Request (Manager) - PENDING
+POST {{baseUrl}}/vacancy-requests
+Authorization: Bearer {{managerToken}}
+Content-Type: application/json
+
+{
+  "title": "Product Manager",
+  "description": "Looking for a product manager to drive our product strategy",
+  "departmentId": "DEPARTMENT_ID_HERE",
+  "justification": "New product line launch",
+  "numberOfPositions": 1,
+  "requiredSkills": ["Product Management", "Agile", "Stakeholder Management"],
+  "experienceLevel": "Mid-level (3-5 years)",
+  "salaryRange": "$90,000 - $110,000",
+  "status": "PENDING"
+}
+
+### 6. Update Vacancy Request (Manager)
+PUT {{baseUrl}}/vacancy-requests/REQUEST_ID_HERE
+Authorization: Bearer {{managerToken}}
+Content-Type: application/json
+
+{
+  "title": "Senior Software Engineer - Updated",
+  "numberOfPositions": 3,
+  "salaryRange": "$110,000 - $140,000"
+}
+
+### 7. Submit Vacancy Request (Manager) - Change DRAFT to PENDING
+POST {{baseUrl}}/vacancy-requests/REQUEST_ID_HERE/submit
+Authorization: Bearer {{managerToken}}
+
+### 8. Get All Vacancy Requests (Manager - sees only their own)
+GET {{baseUrl}}/vacancy-requests
+Authorization: Bearer {{managerToken}}
+
+### 9. Get All PENDING Vacancy Requests (Recruiter)
+GET {{baseUrl}}/vacancy-requests?status=PENDING
+Authorization: Bearer {{recruiterToken}}
+
+### 10. Get Vacancy Request by ID (Manager)
+GET {{baseUrl}}/vacancy-requests/REQUEST_ID_HERE
+Authorization: Bearer {{managerToken}}
+
+### 11. Approve Vacancy Request (Recruiter)
+POST {{baseUrl}}/vacancy-requests/REQUEST_ID_HERE/approve
+Authorization: Bearer {{recruiterToken}}
+
+### 12. Decline Vacancy Request (Recruiter)
+POST {{baseUrl}}/vacancy-requests/REQUEST_ID_HERE/decline
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "declinedReason": "Budget constraints - please resubmit next quarter with revised budget"
+}
+
+### 13. Cancel Vacancy Request (Manager)
+POST {{baseUrl}}/vacancy-requests/REQUEST_ID_HERE/cancel
+Authorization: Bearer {{managerToken}}
+
+### 14. Get All Vacancy Requests with Filters (Admin)
+GET {{baseUrl}}/vacancy-requests?status=APPROVED&page=1&limit=10
+Authorization: Bearer {{adminToken}}
+
+### 15. Get All Vacancy Requests by Department (Admin)
+GET {{baseUrl}}/vacancy-requests?departmentId=DEPARTMENT_ID_HERE
+Authorization: Bearer {{adminToken}}
+
+### 16. Delete Vacancy Request (Manager - only DRAFT)
+DELETE {{baseUrl}}/vacancy-requests/REQUEST_ID_HERE
+Authorization: Bearer {{managerToken}}
+
+### 17. Delete Vacancy Request (Admin - any status)
+DELETE {{baseUrl}}/vacancy-requests/REQUEST_ID_HERE
+Authorization: Bearer {{adminToken}}
+
+### 18. Try to approve as Manager (should fail - 403)
+POST {{baseUrl}}/vacancy-requests/REQUEST_ID_HERE/approve
+Authorization: Bearer {{managerToken}}
+
+### 19. Try to update approved request (should fail - 400)
+PUT {{baseUrl}}/vacancy-requests/APPROVED_REQUEST_ID_HERE
+Authorization: Bearer {{managerToken}}
+Content-Type: application/json
+
+{
+  "title": "This should fail"
+}
+
+### 20. Try to view another manager's request (should fail - 403)
+GET {{baseUrl}}/vacancy-requests/OTHER_MANAGER_REQUEST_ID_HERE
+Authorization: Bearer {{managerToken}}
+

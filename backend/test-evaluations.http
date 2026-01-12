@@ -1,0 +1,172 @@
+### Variables
+@baseUrl = http://localhost:3000/api
+@recruiterToken = YOUR_RECRUITER_TOKEN
+@interviewerToken = YOUR_INTERVIEWER_TOKEN
+@managerToken = YOUR_MANAGER_TOKEN
+@applicationId = YOUR_APPLICATION_ID
+
+### ============================================
+### RECRUITER - Create Evaluation
+### ============================================
+POST {{baseUrl}}/applications/{{applicationId}}/evaluations
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "rating": 8,
+  "comments": "Strong candidate with excellent technical skills and good communication.",
+  "strengths": "Deep knowledge of React and TypeScript, strong problem-solving abilities",
+  "weaknesses": "Limited experience with our specific tech stack (GraphQL)",
+  "recommendation": "PROCEED"
+}
+
+### ============================================
+### INTERVIEWER - Create Evaluation (must be assigned)
+### ============================================
+POST {{baseUrl}}/applications/{{applicationId}}/evaluations
+Authorization: Bearer {{interviewerToken}}
+Content-Type: application/json
+
+{
+  "rating": 9,
+  "comments": "Excellent interview performance. Candidate demonstrated strong technical knowledge and cultural fit.",
+  "strengths": "Great communication, quick learner, team player",
+  "weaknesses": "Could improve on system design experience",
+  "recommendation": "STRONG_YES"
+}
+
+### ============================================
+### RECRUITER - Update Status (APPLIED → SCREENING)
+### ============================================
+POST {{baseUrl}}/applications/{{applicationId}}/status
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "status": "SCREENING",
+  "notes": "Moving to screening phase after initial review"
+}
+
+### ============================================
+### RECRUITER - Update Status (SCREENING → INTERVIEW)
+### ============================================
+POST {{baseUrl}}/applications/{{applicationId}}/status
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "status": "INTERVIEW",
+  "notes": "Candidate passed screening, scheduling interview"
+}
+
+### ============================================
+### RECRUITER - Update Status (INTERVIEW → OFFERED)
+### Requires: At least one evaluation with avg rating >= 6
+### ============================================
+POST {{baseUrl}}/applications/{{applicationId}}/status
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "status": "OFFERED",
+  "notes": "Extending job offer based on positive evaluations"
+}
+
+### ============================================
+### RECRUITER - Update Status (OFFERED → ACCEPTED)
+### ============================================
+POST {{baseUrl}}/applications/{{applicationId}}/status
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "status": "ACCEPTED",
+  "notes": "Candidate accepted the offer"
+}
+
+### ============================================
+### RECRUITER - Invalid Transition (should fail)
+### Try to jump from APPLIED to OFFERED
+### ============================================
+POST {{baseUrl}}/applications/{{applicationId}}/status
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "status": "OFFERED",
+  "notes": "Trying to skip steps"
+}
+
+### ============================================
+### MANAGER - Get Department Vacancies
+### ============================================
+GET {{baseUrl}}/manager/vacancies?status=OPEN&page=1&limit=20
+Authorization: Bearer {{managerToken}}
+
+### ============================================
+### MANAGER - Get Application Detail
+### ============================================
+GET {{baseUrl}}/manager/applications/{{applicationId}}
+Authorization: Bearer {{managerToken}}
+
+### ============================================
+### MANAGER - Create Recommendation
+### ============================================
+POST {{baseUrl}}/manager/applications/{{applicationId}}/recommendation
+Authorization: Bearer {{managerToken}}
+Content-Type: application/json
+
+{
+  "comment": "This candidate demonstrates exceptional technical skills and cultural alignment with our team. I strongly recommend proceeding with the hire.",
+  "suggestedDecision": "STRONG_RECOMMEND_HIRE",
+  "confidential": false
+}
+
+### ============================================
+### MANAGER - Create Confidential Recommendation
+### ============================================
+POST {{baseUrl}}/manager/applications/{{applicationId}}/recommendation
+Authorization: Bearer {{managerToken}}
+Content-Type: application/json
+
+{
+  "comment": "While the candidate has strong technical skills, I have concerns about their ability to work in a fast-paced environment based on previous feedback. Recommend proceeding with caution.",
+  "suggestedDecision": "PROCEED_WITH_CAUTION",
+  "confidential": true
+}
+
+### ============================================
+### ERROR CASES
+### ============================================
+
+### Interviewer evaluates without assignment (should fail)
+POST {{baseUrl}}/applications/{{applicationId}}/evaluations
+Authorization: Bearer {{interviewerToken}}
+Content-Type: application/json
+
+{
+  "rating": 7,
+  "comments": "Good candidate",
+  "recommendation": "PROCEED"
+}
+
+### Invalid rating (should fail)
+POST {{baseUrl}}/applications/{{applicationId}}/evaluations
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "rating": 15,
+  "comments": "Rating out of range"
+}
+
+### Move to OFFERED without evaluation (should fail)
+POST {{baseUrl}}/applications/{{applicationId}}/status
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "status": "OFFERED",
+  "notes": "No evaluation yet"
+}
+
