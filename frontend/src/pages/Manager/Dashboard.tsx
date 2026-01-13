@@ -33,18 +33,21 @@ export const ManagerDashboard = () => {
         api.get('/vacancy-requests'),
       ]);
 
-      const vacancies = vacanciesRes.data;
-      // Handle paginated response
-      const requests = requestsRes.data.data || requestsRes.data;
+      // Handle paginated responses
+      const vacanciesData = vacanciesRes.data.data || vacanciesRes.data || [];
+      const requestsData = requestsRes.data.data || requestsRes.data || [];
+
+      const vacanciesArr = Array.isArray(vacanciesData) ? vacanciesData : [];
+      const requestsArr = Array.isArray(requestsData) ? requestsData : [];
 
       setStats({
-        departmentVacancies: vacancies.length,
-        pendingRequests: requests.filter((r: any) => r.status === 'PENDING').length,
-        totalApplications: vacancies.reduce((sum: number, v: any) => sum + (v._count?.applications || 0), 0),
-        awaitingApproval: vacancies.filter((v: any) => v.status === 'PENDING_APPROVAL').length,
+        departmentVacancies: vacanciesArr.length,
+        pendingRequests: requestsArr.filter((r: any) => r.status === 'PENDING').length,
+        totalApplications: vacanciesArr.reduce((sum: number, v: any) => sum + (v._count?.applications || 0), 0),
+        awaitingApproval: vacanciesArr.filter((v: any) => v.status === 'PENDING_APPROVAL').length,
       });
 
-      setVacancies(vacancies.slice(0, 5));
+      setVacancies(vacanciesArr.slice(0, 5));
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {

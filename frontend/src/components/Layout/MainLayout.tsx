@@ -43,6 +43,8 @@ export const MainLayout = () => {
       case 'APPLICANT':
         return [
           { to: '/applicant/dashboard', label: 'Dashboard' },
+          { to: '/applicant/applications', label: 'My Applications' },
+          { to: '/applicant/interviews', label: 'Interviews' },
           { to: '/vacancies', label: 'Browse Jobs' },
           ...baseLinks,
         ];

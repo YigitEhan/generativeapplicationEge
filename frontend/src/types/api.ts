@@ -5,7 +5,8 @@ export interface User {
   firstName: string;
   lastName: string;
   role: 'ADMIN' | 'MANAGER' | 'RECRUITER' | 'INTERVIEWER' | 'APPLICANT';
-  department?: string;
+  department?: string | { id: string; name: string; description?: string };
+  phone?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -32,20 +33,24 @@ export interface Vacancy {
   id: string;
   title: string;
   description: string;
-  department: string;
-  location: string;
-  employmentType: 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'INTERNSHIP';
-  experienceLevel: 'ENTRY' | 'MID' | 'SENIOR' | 'LEAD';
-  salaryMin?: number;
-  salaryMax?: number;
-  requirements: string[];
-  responsibilities: string[];
-  benefits: string[];
-  status: 'DRAFT' | 'PUBLISHED' | 'CLOSED';
-  deadline?: string;
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
+  department?: string | { id: string; name: string; description?: string };
+  departmentId?: string;
+  location?: string;
+  employmentType?: string;
+  salaryRange?: string;
+  requiredSkills?: string[];
+  responsibilities?: string;
+  qualifications?: string;
+  benefits?: string;
+  numberOfPositions?: number;
+  applicationDeadline?: string;
+  publishedAt?: string;
+  closedAt?: string;
+  status: 'DRAFT' | 'OPEN' | 'CLOSED';
+  createdById?: string;
+  createdBy?: { id: string; email: string; firstName: string; lastName: string };
+  createdAt?: string;
+  updatedAt?: string;
   _count?: {
     applications: number;
   };

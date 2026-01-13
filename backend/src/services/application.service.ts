@@ -207,6 +207,20 @@ export class ApplicationService {
               content: true,
             },
           },
+          interviewAssignments: {
+            include: {
+              interview: {
+                select: {
+                  id: true,
+                  title: true,
+                  type: true,
+                  scheduledAt: true,
+                  location: true,
+                  status: true,
+                },
+              },
+            },
+          },
         },
         orderBy: {
           appliedAt: 'desc',
@@ -276,7 +290,7 @@ export class ApplicationService {
             },
           },
           orderBy: {
-            createdAt: 'desc',
+            appliedAt: 'desc',
           },
         },
         testAttempts: {
@@ -453,7 +467,7 @@ export class ApplicationService {
           },
         },
         orderBy: {
-          createdAt: 'desc',
+          appliedAt: 'desc',
         },
         skip,
         take: limit,
@@ -599,7 +613,7 @@ export class ApplicationService {
             },
           },
           orderBy: {
-            createdAt: 'desc',
+            appliedAt: 'desc',
           },
         },
         testAttempts: {

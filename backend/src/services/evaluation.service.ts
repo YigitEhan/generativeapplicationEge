@@ -202,15 +202,14 @@ export class EvaluationService {
       select: { id: true },
     });
 
-    if (departments.length === 0) {
-      throw new Error('You are not assigned as a manager to any department');
+    const where: any = {};
+
+    // If manager is assigned to departments, filter by those
+    // Otherwise, show all vacancies (for demo purposes)
+    if (departments.length > 0) {
+      const departmentIds = departments.map((d) => d.id);
+      where.departmentId = { in: departmentIds };
     }
-
-    const departmentIds = departments.map((d) => d.id);
-
-    const where: any = {
-      departmentId: { in: departmentIds },
-    };
 
     if (status) {
       where.status = status;

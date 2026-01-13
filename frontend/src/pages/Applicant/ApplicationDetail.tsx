@@ -51,7 +51,11 @@ export const ApplicationDetail = () => {
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">{application.vacancy?.title}</h1>
-          <p className="text-gray-600 mt-1">{application.vacancy?.department}</p>
+          <p className="text-gray-600 mt-1">
+            {typeof application.vacancy?.department === 'object' && application.vacancy?.department
+              ? (application.vacancy.department as { name: string }).name
+              : (application.vacancy?.department as string) || 'N/A'}
+          </p>
         </div>
         <StatusBadge status={application.status} type="application" />
       </div>

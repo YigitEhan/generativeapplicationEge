@@ -36,19 +36,25 @@ export const RecruiterDashboard = () => {
         api.get('/interviews'),
       ]);
 
-      const vacancies = vacanciesRes.data;
-      const applications = applicationsRes.data;
-      const interviews = interviewsRes.data;
+      // Handle paginated responses
+      const vacancies = vacanciesRes.data.data || vacanciesRes.data || [];
+      const applications = applicationsRes.data.data || applicationsRes.data || [];
+      const interviews = interviewsRes.data.data || interviewsRes.data || [];
+
+      // Ensure arrays
+      const vacanciesArr = Array.isArray(vacancies) ? vacancies : [];
+      const applicationsArr = Array.isArray(applications) ? applications : [];
+      const interviewsArr = Array.isArray(interviews) ? interviews : [];
 
       setStats({
-        totalVacancies: vacancies.length,
-        activeVacancies: vacancies.filter((v: any) => v.status === 'OPEN').length,
-        totalApplications: applications.length,
-        pendingApplications: applications.filter((a: any) => a.status === 'SUBMITTED').length,
-        interviewsScheduled: interviews.filter((i: any) => i.status === 'SCHEDULED').length,
+        totalVacancies: vacanciesArr.length,
+        activeVacancies: vacanciesArr.filter((v: any) => v.status === 'OPEN').length,
+        totalApplications: applicationsArr.length,
+        pendingApplications: applicationsArr.filter((a: any) => a.status === 'SUBMITTED').length,
+        interviewsScheduled: interviewsArr.filter((i: any) => i.status === 'SCHEDULED').length,
       });
 
-      setRecentApplications(applications.slice(0, 5));
+      setRecentApplications(applicationsArr.slice(0, 5));
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {

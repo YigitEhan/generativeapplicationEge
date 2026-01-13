@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { vacanciesApi } from '../../lib/api';
 import type { Vacancy } from '../../types/api';
-import { Card } from '../../components/UI/Card';
 import { StatusBadge } from '../../components/UI/StatusBadge';
 import { Button } from '../../components/UI/Button';
 
@@ -21,8 +20,14 @@ export const VacanciesList = () => {
   const fetchVacancies = async () => {
     try {
       setLoading(true);
-      const response = await vacanciesApi.getPublic(filters);
-      const data = response.data.data || response.data;
+      // Only send non-empty filters
+      const params: any = {};
+      if (filters.department) params.department = filters.department;
+      if (filters.employmentType) params.employmentType = filters.employmentType;
+
+      const response = await vacanciesApi.getPublic(Object.keys(params).length > 0 ? params : undefined);
+      const resData = response.data as any;
+      const data = resData.data || resData;
       setVacancies(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch vacancies:', error);
@@ -93,18 +98,21 @@ export const VacanciesList = () => {
                       <h3 className="text-lg font-semibold text-gray-900">{vacancy.title}</h3>
                       <StatusBadge status={vacancy.status} type="vacancy" />
                     </div>
-                    <p className="text-sm text-gray-600">{vacancy.department}</p>
+                    <p className="text-sm text-gray-600">
+                      {typeof vacancy.department === 'object' && vacancy.department
+                        ? vacancy.department.name
+                        : vacancy.department || 'N/A'}
+                    </p>
                   </div>
 
                   <p className="text-sm text-gray-700 line-clamp-3">{vacancy.description}</p>
 
                   <div className="flex flex-wrap gap-2">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {vacancy.employmentType.replace('_', ' ')}
-                    </span>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                      {vacancy.experienceLevel}
-                    </span>
+                    {vacancy.employmentType && (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {vacancy.employmentType.replace('_', ' ')}
+                      </span>
+                    )}
                     {vacancy.location && (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                         📍 {vacancy.location}
@@ -112,9 +120,9 @@ export const VacanciesList = () => {
                     )}
                   </div>
 
-                  {vacancy.salaryMin && vacancy.salaryMax && (
+                  {vacancy.salaryRange && (
                     <p className="text-sm font-medium text-gray-900">
-                      ${vacancy.salaryMin.toLocaleString()} - ${vacancy.salaryMax.toLocaleString()}
+                      {vacancy.salaryRange}
                     </p>
                   )}
 

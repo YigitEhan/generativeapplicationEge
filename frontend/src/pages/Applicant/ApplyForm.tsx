@@ -67,7 +67,11 @@ export const ApplyForm = () => {
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Apply for Position</h1>
-        <p className="mt-2 text-gray-600">{vacancy.title} - {vacancy.department}</p>
+        <p className="mt-2 text-gray-600">
+          {vacancy.title} - {typeof vacancy.department === 'object' && vacancy.department
+            ? vacancy.department.name
+            : vacancy.department || 'N/A'}
+        </p>
       </div>
 
       <Card>

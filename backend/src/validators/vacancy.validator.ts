@@ -47,26 +47,41 @@ export const updateVacancySchema = z.object({
  */
 export const vacancyQuerySchema = z.object({
   status: z.nativeEnum(VacancyStatus).optional(),
-  departmentId: z.string().uuid().optional(),
-  keyword: z.string().optional(),
-  employmentType: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERNSHIP']).optional(),
-  page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(10),
-});
+  departmentId: z.string().uuid().optional().or(z.literal('')),
+  keyword: z.string().optional().or(z.literal('')),
+  employmentType: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERNSHIP']).optional().or(z.literal('')),
+  page: z.coerce.number().int().min(1).default(1).optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(10).optional(),
+}).transform((data) => ({
+  ...data,
+  departmentId: data.departmentId === '' ? undefined : data.departmentId,
+  keyword: data.keyword === '' ? undefined : data.keyword,
+  employmentType: data.employmentType === '' ? undefined : data.employmentType,
+  page: data.page || 1,
+  limit: data.limit || 10,
+}));
 
 /**
  * Query parameters for public vacancy listing
  * Only shows published and open vacancies
  */
 export const publicVacancyQuerySchema = z.object({
-  departmentId: z.string().uuid().optional(),
-  keyword: z.string().optional(),
-  employmentType: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERNSHIP']).optional(),
-  location: z.string().optional(),
+  departmentId: z.string().uuid().optional().or(z.literal('')),
+  keyword: z.string().optional().or(z.literal('')),
+  employmentType: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERNSHIP']).optional().or(z.literal('')),
+  location: z.string().optional().or(z.literal('')),
   experienceYears: z.coerce.number().int().min(0).optional(),
-  page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(50).default(10),
-});
+  page: z.coerce.number().int().min(1).default(1).optional(),
+  limit: z.coerce.number().int().min(1).max(50).default(10).optional(),
+}).transform((data) => ({
+  ...data,
+  departmentId: data.departmentId === '' ? undefined : data.departmentId,
+  keyword: data.keyword === '' ? undefined : data.keyword,
+  employmentType: data.employmentType === '' ? undefined : data.employmentType,
+  location: data.location === '' ? undefined : data.location,
+  page: data.page || 1,
+  limit: data.limit || 10,
+}));
 
 export type CreateVacancyInput = z.infer<typeof createVacancySchema>;
 export type UpdateVacancyInput = z.infer<typeof updateVacancySchema>;

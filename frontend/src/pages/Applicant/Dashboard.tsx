@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { applicationsApi, vacanciesApi } from '../../lib/api';
 import type { Application, Vacancy } from '../../types/api';
-import { Card } from '../../components/UI/Card';
 import { StatusBadge } from '../../components/UI/StatusBadge';
 import { Button } from '../../components/UI/Button';
 
@@ -20,7 +19,7 @@ export const ApplicantDashboard = () => {
       setLoading(true);
       const [appsRes, vacsRes] = await Promise.all([
         applicationsApi.getMine(),
-        vacanciesApi.getPublic({ }),
+        vacanciesApi.getPublic(),
       ]);
       const apps = appsRes.data.data || appsRes.data;
       const vacs = vacsRes.data.data || vacsRes.data;
@@ -149,7 +148,11 @@ export const ApplicantDashboard = () => {
               <Link key={vacancy.id} to={`/applicant/vacancies/${vacancy.id}`}>
                 <div className="p-4 border rounded-lg hover:shadow-md transition-shadow">
                   <h3 className="font-medium text-gray-900 mb-2">{vacancy.title}</h3>
-                  <p className="text-sm text-gray-600 mb-3">{vacancy.department}</p>
+                  <p className="text-sm text-gray-600 mb-3">
+                    {typeof vacancy.department === 'object' && vacancy.department
+                      ? vacancy.department.name
+                      : vacancy.department || 'N/A'}
+                  </p>
                   <Button size="sm" fullWidth>View Details</Button>
                 </div>
               </Link>

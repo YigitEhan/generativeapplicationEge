@@ -46,42 +46,43 @@ export class VacancyService {
       throw new Error('Vacancy already exists for this request');
     }
 
-    // Validate salary range
-    if (data.salaryMin && data.salaryMax && data.salaryMin > data.salaryMax) {
-      throw new Error('Minimum salary cannot be greater than maximum salary');
+    // Build salary range string if min/max provided
+    let salaryRange: string | undefined;
+    if (data.salaryMin && data.salaryMax) {
+      salaryRange = `$${data.salaryMin.toLocaleString()} - $${data.salaryMax.toLocaleString()}`;
+    } else if (data.salaryMin) {
+      salaryRange = `From $${data.salaryMin.toLocaleString()}`;
+    } else if (data.salaryMax) {
+      salaryRange = `Up to $${data.salaryMax.toLocaleString()}`;
     }
 
     // Parse deadline if provided
-    let deadline: Date | undefined;
+    let applicationDeadline: Date | undefined;
     if (data.deadline) {
-      deadline = new Date(data.deadline);
-      if (deadline < new Date()) {
+      applicationDeadline = new Date(data.deadline);
+      if (applicationDeadline < new Date()) {
         throw new Error('Deadline cannot be in the past');
       }
     }
 
-    // Create vacancy with data from request or override
+    // Create vacancy with data from request or override - using actual schema fields
     const vacancy = await prisma.vacancy.create({
       data: {
         vacancyRequestId: data.vacancyRequestId,
         departmentId: vacancyRequest.departmentId,
         title: data.title || vacancyRequest.title,
         description: data.description || vacancyRequest.description,
-        requirements: data.requirements || vacancyRequest.requiredSkills,
-        responsibilities: data.responsibilities || [],
-        qualifications: data.qualifications || [],
-        benefits: data.benefits || [],
-        salaryMin: data.salaryMin,
-        salaryMax: data.salaryMax,
+        requiredSkills: data.requirements || vacancyRequest.requiredSkills,
+        responsibilities: data.responsibilities?.join('\n') || '',
+        qualifications: data.qualifications?.join('\n') || '',
+        benefits: data.benefits?.join('\n') || '',
+        salaryRange,
         location: data.location,
         employmentType: data.employmentType || 'FULL_TIME',
-        experienceYears: data.experienceYears,
-        educationLevel: data.educationLevel,
         numberOfPositions: vacancyRequest.numberOfPositions,
-        deadline,
-        status: 'DRAFT',
-        isPublished: false,
-        createdBy: userId,
+        applicationDeadline,
+        status: 'OPEN',
+        createdById: userId,
       },
       include: {
         department: {
@@ -97,7 +98,7 @@ export class VacancyService {
             requestedBy: true,
           },
         },
-        creator: {
+        createdBy: {
           select: {
             id: true,
             email: true,
@@ -150,44 +151,41 @@ export class VacancyService {
       throw new Error('Cannot update closed vacancy');
     }
 
-    // Validate salary range
-    const salaryMin = data.salaryMin ?? existingVacancy.salaryMin;
-    const salaryMax = data.salaryMax ?? existingVacancy.salaryMax;
-    if (salaryMin && salaryMax && salaryMin > salaryMax) {
-      throw new Error('Minimum salary cannot be greater than maximum salary');
+    // Build salary range string if min/max provided
+    let salaryRange: string | undefined;
+    if (data.salaryMin && data.salaryMax) {
+      salaryRange = `$${data.salaryMin.toLocaleString()} - $${data.salaryMax.toLocaleString()}`;
+    } else if (data.salaryMin) {
+      salaryRange = `From $${data.salaryMin.toLocaleString()}`;
+    } else if (data.salaryMax) {
+      salaryRange = `Up to $${data.salaryMax.toLocaleString()}`;
     }
 
     // Parse deadline if provided
-    let deadline: Date | undefined | null = undefined;
+    let applicationDeadline: Date | undefined | null = undefined;
     if (data.deadline !== undefined) {
       if (data.deadline) {
-        deadline = new Date(data.deadline);
-        if (deadline < new Date()) {
+        applicationDeadline = new Date(data.deadline);
+        if (applicationDeadline < new Date()) {
           throw new Error('Deadline cannot be in the past');
         }
       } else {
-        deadline = null;
+        applicationDeadline = null;
       }
     }
 
-    const updateData: any = {
-      title: data.title,
-      description: data.description,
-      requirements: data.requirements,
-      responsibilities: data.responsibilities,
-      qualifications: data.qualifications,
-      benefits: data.benefits,
-      salaryMin: data.salaryMin,
-      salaryMax: data.salaryMax,
-      location: data.location,
-      employmentType: data.employmentType,
-      experienceYears: data.experienceYears,
-      educationLevel: data.educationLevel,
-    };
+    const updateData: any = {};
 
-    if (deadline !== undefined) {
-      updateData.deadline = deadline;
-    }
+    if (data.title !== undefined) updateData.title = data.title;
+    if (data.description !== undefined) updateData.description = data.description;
+    if (data.requirements !== undefined) updateData.requiredSkills = data.requirements;
+    if (data.responsibilities !== undefined) updateData.responsibilities = data.responsibilities.join('\n');
+    if (data.qualifications !== undefined) updateData.qualifications = data.qualifications.join('\n');
+    if (data.benefits !== undefined) updateData.benefits = data.benefits.join('\n');
+    if (salaryRange !== undefined) updateData.salaryRange = salaryRange;
+    if (data.location !== undefined) updateData.location = data.location;
+    if (data.employmentType !== undefined) updateData.employmentType = data.employmentType;
+    if (applicationDeadline !== undefined) updateData.applicationDeadline = applicationDeadline;
 
     const updatedVacancy = await prisma.vacancy.update({
       where: { id },
@@ -205,7 +203,7 @@ export class VacancyService {
             title: true,
           },
         },
-        creator: {
+        createdBy: {
           select: {
             id: true,
             email: true,
@@ -250,14 +248,14 @@ export class VacancyService {
       throw new Error('Cannot publish closed vacancy');
     }
 
-    if (vacancy.isPublished) {
+    // Check if already published by checking publishedAt
+    if (vacancy.publishedAt && vacancy.status === 'OPEN') {
       throw new Error('Vacancy is already published');
     }
 
     const updatedVacancy = await prisma.vacancy.update({
       where: { id },
       data: {
-        isPublished: true,
         status: 'OPEN',
         publishedAt: new Date(),
       },
@@ -268,7 +266,7 @@ export class VacancyService {
             name: true,
           },
         },
-        creator: {
+        createdBy: {
           select: {
             id: true,
             email: true,
@@ -287,7 +285,6 @@ export class VacancyService {
       entity: 'Vacancy',
       entityId: id,
       changes: {
-        isPublished: true,
         status: 'OPEN',
         publishedAt: new Date(),
       },
@@ -310,7 +307,8 @@ export class VacancyService {
       throw new Error('Vacancy not found');
     }
 
-    if (!vacancy.isPublished) {
+    // Check if not published
+    if (!vacancy.publishedAt) {
       throw new Error('Vacancy is not published');
     }
 
@@ -321,8 +319,8 @@ export class VacancyService {
     const updatedVacancy = await prisma.vacancy.update({
       where: { id },
       data: {
-        isPublished: false,
         status: 'DRAFT',
+        publishedAt: null,
       },
       include: {
         department: {
@@ -331,7 +329,7 @@ export class VacancyService {
             name: true,
           },
         },
-        creator: {
+        createdBy: {
           select: {
             id: true,
             email: true,
@@ -350,7 +348,6 @@ export class VacancyService {
       entity: 'Vacancy',
       entityId: id,
       changes: {
-        isPublished: false,
         status: 'DRAFT',
       },
       ipAddress,
@@ -380,7 +377,7 @@ export class VacancyService {
       where: { id },
       data: {
         status: 'CLOSED',
-        isPublished: false,
+        publishedAt: null,
         closedAt: new Date(),
       },
       include: {
@@ -390,7 +387,7 @@ export class VacancyService {
             name: true,
           },
         },
-        creator: {
+        createdBy: {
           select: {
             id: true,
             email: true,
@@ -467,7 +464,7 @@ export class VacancyService {
               requestedBy: true,
             },
           },
-          creator: {
+          createdBy: {
             select: {
               id: true,
               email: true,
@@ -615,7 +612,7 @@ export class VacancyService {
             },
           },
         },
-        creator: {
+        createdBy: {
           select: {
             id: true,
             email: true,
@@ -646,26 +643,24 @@ export class VacancyService {
     const vacancy = await prisma.vacancy.findFirst({
       where: {
         id,
-        isPublished: true,
+        publishedAt: { not: null },
         status: 'OPEN',
       },
       select: {
         id: true,
         title: true,
         description: true,
-        requirements: true,
+        requiredSkills: true,
         responsibilities: true,
         qualifications: true,
         benefits: true,
-        salaryMin: true,
-        salaryMax: true,
+        salaryRange: true,
         location: true,
         employmentType: true,
-        experienceYears: true,
-        educationLevel: true,
         numberOfPositions: true,
-        deadline: true,
+        applicationDeadline: true,
         publishedAt: true,
+        status: true,
         department: {
           select: {
             id: true,

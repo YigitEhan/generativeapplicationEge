@@ -16,7 +16,8 @@ export const MyApplications = () => {
   const fetchApplications = async () => {
     try {
       const response = await applicationsApi.getMine();
-      const data = response.data.data || response.data;
+      const resData = response.data as any;
+      const data = resData.data || resData;
       setApplications(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch applications:', error);
@@ -49,7 +50,11 @@ export const MyApplications = () => {
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">{app.vacancy?.title}</h3>
-                    <p className="text-sm text-gray-600">{app.vacancy?.department}</p>
+                    <p className="text-sm text-gray-600">
+                      {typeof app.vacancy?.department === 'object' && app.vacancy?.department
+                        ? (app.vacancy.department as { name: string }).name
+                        : (app.vacancy?.department as string) || 'N/A'}
+                    </p>
                     <p className="text-xs text-gray-500 mt-2">Applied on {new Date(app.createdAt).toLocaleDateString()}</p>
                   </div>
                   <StatusBadge status={app.status} type="application" />

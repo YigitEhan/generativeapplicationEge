@@ -57,12 +57,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await authApi.login(data);
       const { user, token } = response.data;
-      
+
       localStorage.setItem('token', token);
       setUser(user);
       setToken(token);
     } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Login failed');
+      console.error('Login error:', error);
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Login failed';
+      throw new Error(errorMessage);
     }
   };
 
@@ -70,12 +72,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await authApi.register(data);
       const { user, token } = response.data;
-      
+
       localStorage.setItem('token', token);
       setUser(user);
       setToken(token);
     } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Registration failed');
+      console.error('Registration error:', error);
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Registration failed';
+      throw new Error(errorMessage);
     }
   };
 

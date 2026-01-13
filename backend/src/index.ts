@@ -16,6 +16,7 @@ import userRoutes from './routes/user.routes';
 import testRoutes from './routes/test.routes';
 import interviewRoutes from './routes/interview.routes';
 import notificationRoutes from './routes/notification.routes';
+import departmentRoutes from './routes/department.routes';
 import { errorHandler } from './middleware/errorHandler';
 
 dotenv.config();
@@ -64,6 +65,7 @@ app.use('/api/users', userRoutes);
 app.use('/api', testRoutes); // Test routes (includes /vacancies/:id/test and /applications/:id/test)
 app.use('/api', interviewRoutes); // Interview routes (includes /applications/:id/interviews and /interviewer/interviews)
 app.use('/api/notifications', notificationRoutes); // Notification routes
+app.use('/api/departments', departmentRoutes); // Department routes
 
 // Error handling
 app.use(errorHandler);

@@ -112,7 +112,7 @@ async function main() {
   });
   console.log(`✅ Interviewer: ${interviewer.email} / interviewer123`);
 
-  // Applicant User
+  // Applicant Users
   const applicant = await prisma.user.upsert({
     where: { email: 'applicant@recruitment.com' },
     update: {},
@@ -126,7 +126,52 @@ async function main() {
       isActive: true,
     },
   });
-  console.log(`✅ Applicant: ${applicant.email} / applicant123\n`);
+  console.log(`✅ Applicant: ${applicant.email} / applicant123`);
+
+  const applicant2 = await prisma.user.upsert({
+    where: { email: 'john.doe@example.com' },
+    update: {},
+    create: {
+      email: 'john.doe@example.com',
+      password: await bcrypt.hash('password123', 10),
+      firstName: 'John',
+      lastName: 'Doe',
+      role: 'APPLICANT',
+      phone: '+1234567895',
+      isActive: true,
+    },
+  });
+  console.log(`✅ Applicant: ${applicant2.email} / password123`);
+
+  const applicant3 = await prisma.user.upsert({
+    where: { email: 'sarah.smith@example.com' },
+    update: {},
+    create: {
+      email: 'sarah.smith@example.com',
+      password: await bcrypt.hash('password123', 10),
+      firstName: 'Sarah',
+      lastName: 'Smith',
+      role: 'APPLICANT',
+      phone: '+1234567896',
+      isActive: true,
+    },
+  });
+  console.log(`✅ Applicant: ${applicant3.email} / password123`);
+
+  const applicant4 = await prisma.user.upsert({
+    where: { email: 'mike.johnson@example.com' },
+    update: {},
+    create: {
+      email: 'mike.johnson@example.com',
+      password: await bcrypt.hash('password123', 10),
+      firstName: 'Mike',
+      lastName: 'Johnson',
+      role: 'APPLICANT',
+      phone: '+1234567897',
+      isActive: true,
+    },
+  });
+  console.log(`✅ Applicant: ${applicant4.email} / password123\n`);
 
   // ============================================
   // 3. CREATE VACANCY REQUESTS
@@ -164,7 +209,39 @@ async function main() {
     },
   });
 
-  console.log(`✅ Created ${2} vacancy requests\n`);
+  const vacancyRequest3 = await prisma.vacancyRequest.create({
+    data: {
+      title: 'DevOps Engineer',
+      description: 'DevOps engineer to manage infrastructure and CI/CD pipelines',
+      departmentId: itDept.id,
+      requestedBy: manager.id,
+      status: 'APPROVED',
+      justification: 'Need to improve deployment processes and infrastructure',
+      numberOfPositions: 1,
+      requiredSkills: ['Docker', 'Kubernetes', 'AWS', 'CI/CD'],
+      experienceLevel: '4+ years',
+      salaryRange: '$110,000 - $140,000',
+      approvedAt: new Date(),
+    },
+  });
+
+  const vacancyRequest4 = await prisma.vacancyRequest.create({
+    data: {
+      title: 'Marketing Manager',
+      description: 'Marketing manager to lead digital marketing initiatives',
+      departmentId: businessDept.id,
+      requestedBy: manager.id,
+      status: 'APPROVED',
+      justification: 'Expanding marketing efforts for new product launch',
+      numberOfPositions: 1,
+      requiredSkills: ['Digital Marketing', 'SEO', 'Content Strategy', 'Analytics'],
+      experienceLevel: '5+ years',
+      salaryRange: '$90,000 - $120,000',
+      approvedAt: new Date(),
+    },
+  });
+
+  console.log(`✅ Created ${4} vacancy requests\n`);
 
   // ============================================
   // 4. CREATE VACANCIES
@@ -212,10 +289,92 @@ async function main() {
     },
   });
 
-  console.log(`✅ Created ${2} vacancies\n`);
+  const vacancy3 = await prisma.vacancy.create({
+    data: {
+      title: 'DevOps Engineer',
+      description: 'Join our team as a DevOps Engineer to build and maintain our cloud infrastructure.',
+      departmentId: itDept.id,
+      vacancyRequestId: vacancyRequest3.id,
+      createdById: recruiter.id,
+      status: 'OPEN',
+      location: 'Remote',
+      employmentType: 'Full-time',
+      salaryRange: '$110,000 - $140,000',
+      requiredSkills: ['Docker', 'Kubernetes', 'AWS', 'Terraform', 'CI/CD'],
+      responsibilities: 'Manage cloud infrastructure, implement CI/CD pipelines, monitor system performance',
+      qualifications: 'BS in Computer Science or related field, 4+ years DevOps experience',
+      benefits: 'Health insurance, 401k, remote work, learning budget',
+      applicationDeadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      numberOfPositions: 1,
+      publishedAt: new Date(),
+    },
+  });
+
+  const vacancy4 = await prisma.vacancy.create({
+    data: {
+      title: 'Marketing Manager',
+      description: 'Lead our digital marketing efforts and drive brand awareness.',
+      departmentId: businessDept.id,
+      vacancyRequestId: vacancyRequest4.id,
+      createdById: recruiter.id,
+      status: 'OPEN',
+      location: 'San Francisco, CA',
+      employmentType: 'Full-time',
+      salaryRange: '$90,000 - $120,000',
+      requiredSkills: ['Digital Marketing', 'SEO', 'Content Strategy', 'Google Analytics', 'Social Media'],
+      responsibilities: 'Develop marketing strategies, manage campaigns, analyze metrics, lead marketing team',
+      qualifications: 'BA/BS in Marketing or related field, 5+ years marketing experience',
+      benefits: 'Health insurance, PTO, stock options, gym membership',
+      applicationDeadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
+      numberOfPositions: 1,
+      publishedAt: new Date(),
+    },
+  });
+
+  const vacancy5 = await prisma.vacancy.create({
+    data: {
+      title: 'Frontend Developer',
+      description: 'Build beautiful and responsive user interfaces with React.',
+      departmentId: itDept.id,
+      createdById: recruiter.id,
+      status: 'OPEN',
+      location: 'Remote',
+      employmentType: 'Full-time',
+      salaryRange: '$90,000 - $120,000',
+      requiredSkills: ['React', 'TypeScript', 'CSS', 'HTML', 'Responsive Design'],
+      responsibilities: 'Develop UI components, collaborate with designers, optimize performance',
+      qualifications: 'BS in Computer Science or equivalent, 3+ years frontend experience',
+      benefits: 'Health insurance, flexible hours, remote work',
+      applicationDeadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      numberOfPositions: 2,
+      publishedAt: new Date(),
+    },
+  });
+
+  const vacancy6 = await prisma.vacancy.create({
+    data: {
+      title: 'Data Scientist',
+      description: 'Analyze data and build machine learning models to drive business insights.',
+      departmentId: itDept.id,
+      createdById: recruiter.id,
+      status: 'OPEN',
+      location: 'Boston, MA',
+      employmentType: 'Full-time',
+      salaryRange: '$130,000 - $160,000',
+      requiredSkills: ['Python', 'Machine Learning', 'SQL', 'Statistics', 'TensorFlow'],
+      responsibilities: 'Build ML models, analyze data, create visualizations, present findings',
+      qualifications: 'MS/PhD in Data Science or related field, 4+ years experience',
+      benefits: 'Health insurance, 401k, conference budget, stock options',
+      applicationDeadline: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000),
+      numberOfPositions: 1,
+      publishedAt: new Date(),
+    },
+  });
+
+  console.log(`✅ Created ${6} vacancies\n`);
 
   // ============================================
-  // 5. CREATE CVs FOR APPLICANT
+  // 5. CREATE CVs FOR APPLICANTS
   // ============================================
   console.log('📄 Creating CVs...');
 
@@ -227,10 +386,135 @@ async function main() {
       fileSize: 245678,
       mimeType: 'application/pdf',
       isDefault: true,
+      structuredData: {
+        personalInfo: {
+          name: 'Alice Applicant',
+          email: 'applicant@recruitment.com',
+          phone: '+1234567894',
+        },
+        experience: [
+          {
+            title: 'Senior Full Stack Developer',
+            company: 'Tech Corp',
+            duration: '2020-2024',
+            description: 'Led development of React and Node.js applications',
+          },
+        ],
+        education: [
+          {
+            degree: 'BS Computer Science',
+            institution: 'MIT',
+            year: '2020',
+          },
+        ],
+        skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'AWS'],
+      },
     },
   });
 
-  console.log(`✅ Created CV for ${applicant.firstName}\n`);
+  const cv2 = await prisma.cV.create({
+    data: {
+      userId: applicant2.id,
+      fileName: 'john_doe_cv.pdf',
+      filePath: '/uploads/cv-sample-john.pdf',
+      fileSize: 198765,
+      mimeType: 'application/pdf',
+      isDefault: true,
+      structuredData: {
+        personalInfo: {
+          name: 'John Doe',
+          email: 'john.doe@example.com',
+          phone: '+1234567895',
+        },
+        experience: [
+          {
+            title: 'DevOps Engineer',
+            company: 'Cloud Solutions Inc',
+            duration: '2019-2024',
+            description: 'Managed AWS infrastructure and CI/CD pipelines',
+          },
+        ],
+        education: [
+          {
+            degree: 'BS Information Systems',
+            institution: 'Stanford',
+            year: '2019',
+          },
+        ],
+        skills: ['Docker', 'Kubernetes', 'AWS', 'Terraform', 'Jenkins'],
+      },
+    },
+  });
+
+  const cv3 = await prisma.cV.create({
+    data: {
+      userId: applicant3.id,
+      fileName: 'sarah_smith_cv.pdf',
+      filePath: '/uploads/cv-sample-sarah.pdf',
+      fileSize: 212345,
+      mimeType: 'application/pdf',
+      isDefault: true,
+      structuredData: {
+        personalInfo: {
+          name: 'Sarah Smith',
+          email: 'sarah.smith@example.com',
+          phone: '+1234567896',
+        },
+        experience: [
+          {
+            title: 'Frontend Developer',
+            company: 'Design Studio',
+            duration: '2021-2024',
+            description: 'Built responsive React applications',
+          },
+        ],
+        education: [
+          {
+            degree: 'BS Web Development',
+            institution: 'UC Berkeley',
+            year: '2021',
+          },
+        ],
+        skills: ['React', 'TypeScript', 'CSS', 'HTML', 'Figma'],
+      },
+    },
+  });
+
+  const cv4 = await prisma.cV.create({
+    data: {
+      userId: applicant4.id,
+      fileName: 'mike_johnson_cv.pdf',
+      filePath: '/uploads/cv-sample-mike.pdf',
+      fileSize: 234567,
+      mimeType: 'application/pdf',
+      isDefault: true,
+      structuredData: {
+        personalInfo: {
+          name: 'Mike Johnson',
+          email: 'mike.johnson@example.com',
+          phone: '+1234567897',
+        },
+        experience: [
+          {
+            title: 'Data Scientist',
+            company: 'Analytics Pro',
+            duration: '2018-2024',
+            description: 'Built ML models for predictive analytics',
+          },
+        ],
+        education: [
+          {
+            degree: 'PhD Data Science',
+            institution: 'Carnegie Mellon',
+            year: '2018',
+          },
+        ],
+        skills: ['Python', 'TensorFlow', 'SQL', 'Statistics', 'R'],
+      },
+    },
+  });
+
+  console.log(`✅ Created ${4} CVs\n`);
 
   // ============================================
   // 6. CREATE MOTIVATION LETTERS
@@ -245,7 +529,39 @@ async function main() {
     },
   });
 
-  console.log(`✅ Created motivation letter\n`);
+  const motivationLetter2 = await prisma.motivationLetter.create({
+    data: {
+      userId: applicant2.id,
+      content: 'I am very interested in the DevOps Engineer position. My 5 years of experience managing cloud infrastructure and implementing CI/CD pipelines makes me a perfect fit for this role.',
+      vacancyId: vacancy3.id,
+    },
+  });
+
+  const motivationLetter3 = await prisma.motivationLetter.create({
+    data: {
+      userId: applicant3.id,
+      content: 'I would love to join your team as a Frontend Developer. My passion for creating beautiful user interfaces and 3 years of React experience align perfectly with this opportunity.',
+      vacancyId: vacancy5.id,
+    },
+  });
+
+  const motivationLetter4 = await prisma.motivationLetter.create({
+    data: {
+      userId: applicant4.id,
+      content: 'I am excited to apply for the Data Scientist position. With a PhD in Data Science and 6 years of experience building ML models, I can bring significant value to your analytics team.',
+      vacancyId: vacancy6.id,
+    },
+  });
+
+  const motivationLetter5 = await prisma.motivationLetter.create({
+    data: {
+      userId: applicant.id,
+      content: 'I am also interested in the Business Analyst role. My technical background combined with business acumen makes me uniquely qualified for this position.',
+      vacancyId: vacancy2.id,
+    },
+  });
+
+  console.log(`✅ Created ${5} motivation letters\n`);
 
   // ============================================
   // 7. CREATE APPLICATIONS
@@ -263,7 +579,61 @@ async function main() {
     },
   });
 
-  console.log(`✅ Created ${1} application\n`);
+  const application2 = await prisma.application.create({
+    data: {
+      vacancyId: vacancy3.id,
+      applicantId: applicant2.id,
+      cvId: cv2.id,
+      motivationLetterId: motivationLetter2.id,
+      status: 'INTERVIEW_R1',
+      notes: 'Excellent DevOps background',
+    },
+  });
+
+  const application3 = await prisma.application.create({
+    data: {
+      vacancyId: vacancy5.id,
+      applicantId: applicant3.id,
+      cvId: cv3.id,
+      motivationLetterId: motivationLetter3.id,
+      status: 'SHORTLISTED',
+      notes: 'Good frontend skills',
+    },
+  });
+
+  const application4 = await prisma.application.create({
+    data: {
+      vacancyId: vacancy6.id,
+      applicantId: applicant4.id,
+      cvId: cv4.id,
+      motivationLetterId: motivationLetter4.id,
+      status: 'HIRED',
+      notes: 'Outstanding data science expertise',
+    },
+  });
+
+  const application5 = await prisma.application.create({
+    data: {
+      vacancyId: vacancy2.id,
+      applicantId: applicant.id,
+      cvId: cv1.id,
+      motivationLetterId: motivationLetter5.id,
+      status: 'APPLIED',
+      notes: 'Recently submitted',
+    },
+  });
+
+  const application6 = await prisma.application.create({
+    data: {
+      vacancyId: vacancy1.id,
+      applicantId: applicant2.id,
+      cvId: cv2.id,
+      status: 'REJECTED',
+      notes: 'Not enough React experience',
+    },
+  });
+
+  console.log(`✅ Created ${6} applications\n`);
 
   // ============================================
   // 8. CREATE EVALUATIONS
@@ -282,7 +652,31 @@ async function main() {
     },
   });
 
-  console.log(`✅ Created ${1} evaluation\n`);
+  const evaluation2 = await prisma.evaluation.create({
+    data: {
+      applicationId: application2.id,
+      evaluatorId: recruiter.id,
+      rating: 9,
+      comments: 'Outstanding DevOps knowledge and hands-on experience',
+      strengths: 'Deep AWS expertise, strong automation skills',
+      weaknesses: 'Could improve documentation practices',
+      recommendation: 'Strong hire',
+    },
+  });
+
+  const evaluation3 = await prisma.evaluation.create({
+    data: {
+      applicationId: application4.id,
+      evaluatorId: recruiter.id,
+      rating: 10,
+      comments: 'Exceptional data science background with PhD',
+      strengths: 'Advanced ML knowledge, published research, strong Python skills',
+      weaknesses: 'None identified',
+      recommendation: 'Immediate hire',
+    },
+  });
+
+  console.log(`✅ Created ${3} evaluations\n`);
 
   // ============================================
   // 9. CREATE TESTS
@@ -350,7 +744,39 @@ async function main() {
     },
   });
 
-  console.log(`✅ Created ${1} interview\n`);
+  const interview2 = await prisma.interview.create({
+    data: {
+      applicationId: application2.id,
+      vacancyId: vacancy3.id,
+      title: 'DevOps Technical Interview',
+      description: 'Technical interview for DevOps position',
+      round: 1,
+      scheduledById: recruiter.id,
+      scheduledAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
+      duration: 90,
+      location: 'https://zoom.us/j/123456789',
+      status: 'SCHEDULED',
+      notes: 'Discuss AWS and Kubernetes experience',
+    },
+  });
+
+  const interview3 = await prisma.interview.create({
+    data: {
+      applicationId: application4.id,
+      vacancyId: vacancy6.id,
+      title: 'Data Science Interview - Final Round',
+      description: 'Final round interview with leadership team',
+      round: 2,
+      scheduledById: recruiter.id,
+      scheduledAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+      duration: 120,
+      location: 'Office - Conference Room A',
+      status: 'SCHEDULED',
+      notes: 'Present ML project case study',
+    },
+  });
+
+  console.log(`✅ Created ${3} interviews\n`);
 
   // ============================================
   // 12. CREATE INTERVIEWER ASSIGNMENTS
@@ -454,7 +880,52 @@ async function main() {
     },
   });
 
-  console.log(`✅ Created ${3} notifications\n`);
+  await prisma.notification.create({
+    data: {
+      senderId: recruiter.id,
+      receiverId: applicant2.id,
+      type: 'INTERVIEW_SCHEDULED',
+      title: 'Interview Scheduled',
+      message: 'Your interview for DevOps Engineer has been scheduled.',
+      isRead: false,
+      metadata: {
+        interviewId: interview2.id,
+        scheduledAt: interview2.scheduledAt,
+      },
+    },
+  });
+
+  await prisma.notification.create({
+    data: {
+      senderId: recruiter.id,
+      receiverId: applicant4.id,
+      type: 'STATUS_UPDATE',
+      title: 'Application Status Update',
+      message: 'Your application for Data Scientist has been updated to: Hired',
+      isRead: false,
+      metadata: {
+        applicationId: application4.id,
+        status: 'HIRED',
+      },
+    },
+  });
+
+  await prisma.notification.create({
+    data: {
+      senderId: recruiter.id,
+      receiverId: applicant.id,
+      type: 'TEST_INVITATION',
+      title: 'Test Invitation',
+      message: 'You have been invited to take the technical assessment for Senior Full Stack Developer',
+      isRead: false,
+      metadata: {
+        testId: test1.id,
+        applicationId: application1.id,
+      },
+    },
+  });
+
+  console.log(`✅ Created ${6} notifications\n`);
 
   // ============================================
   // SUMMARY
@@ -465,24 +936,29 @@ async function main() {
 
   console.log('📊 Summary:');
   console.log('  • Departments: 3 (Business, IT, HR)');
-  console.log('  • Users: 5 (1 admin, 1 manager, 1 recruiter, 1 interviewer, 1 applicant)');
-  console.log('  • Vacancy Requests: 2');
-  console.log('  • Vacancies: 2');
-  console.log('  • Applications: 1');
-  console.log('  • Evaluations: 1');
+  console.log('  • Users: 8 (1 admin, 1 manager, 1 recruiter, 1 interviewer, 4 applicants)');
+  console.log('  • Vacancy Requests: 4');
+  console.log('  • Vacancies: 6');
+  console.log('  • CVs: 4');
+  console.log('  • Motivation Letters: 5');
+  console.log('  • Applications: 6');
+  console.log('  • Evaluations: 3');
   console.log('  • Tests: 1');
   console.log('  • Test Attempts: 1');
-  console.log('  • Interviews: 1');
+  console.log('  • Interviews: 3');
   console.log('  • Interview Assignments: 1');
   console.log('  • Audit Logs: 2');
-  console.log('  • Notifications: 3\n');
+  console.log('  • Notifications: 6\n');
 
   console.log('🔑 Login Credentials:');
   console.log('  Admin:       admin@recruitment.com / admin123');
   console.log('  Manager:     manager@recruitment.com / manager123');
   console.log('  Recruiter:   recruiter@recruitment.com / recruiter123');
   console.log('  Interviewer: interviewer@recruitment.com / interviewer123');
-  console.log('  Applicant:   applicant@recruitment.com / applicant123\n');
+  console.log('  Applicant 1: applicant@recruitment.com / applicant123');
+  console.log('  Applicant 2: john.doe@example.com / password123');
+  console.log('  Applicant 3: sarah.smith@example.com / password123');
+  console.log('  Applicant 4: mike.johnson@example.com / password123\n');
 }
 
 main()

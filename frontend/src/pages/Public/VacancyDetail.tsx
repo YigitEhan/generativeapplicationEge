@@ -23,7 +23,6 @@ export const VacancyDetail = () => {
   const fetchVacancy = async () => {
     try {
       setLoading(true);
-      // Use public endpoint for vacancy details
       const response = await vacanciesApi.getPublicById(id!);
       setVacancy(response.data);
     } catch (error) {
@@ -68,6 +67,13 @@ export const VacancyDetail = () => {
     );
   }
 
+  const getDepartmentName = () => {
+    if (typeof vacancy.department === 'object' && vacancy.department) {
+      return vacancy.department.name;
+    }
+    return vacancy.department || 'N/A';
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -77,23 +83,21 @@ export const VacancyDetail = () => {
 
         <Card>
           <div className="space-y-6">
-            {/* Header */}
             <div>
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">{vacancy.title}</h1>
-                  <p className="text-lg text-gray-600">{vacancy.department}</p>
+                  <p className="text-lg text-gray-600">{getDepartmentName()}</p>
                 </div>
                 <StatusBadge status={vacancy.status} type="vacancy" />
               </div>
 
               <div className="flex flex-wrap gap-3 mt-4">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                  {vacancy.employmentType.replace('_', ' ')}
-                </span>
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
-                  {vacancy.experienceLevel}
-                </span>
+                {vacancy.employmentType && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                    {vacancy.employmentType.replace('_', ' ')}
+                  </span>
+                )}
                 {vacancy.location && (
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
                     📍 {vacancy.location}
@@ -101,57 +105,49 @@ export const VacancyDetail = () => {
                 )}
               </div>
 
-              {vacancy.salaryMin && vacancy.salaryMax && (
-                <p className="text-lg font-semibold text-gray-900 mt-4">
-                  ${vacancy.salaryMin.toLocaleString()} - ${vacancy.salaryMax.toLocaleString()} / year
-                </p>
+              {vacancy.salaryRange && (
+                <p className="text-lg font-semibold text-gray-900 mt-4">{vacancy.salaryRange}</p>
               )}
             </div>
 
-            {/* Description */}
             <div>
               <h2 className="text-xl font-semibold text-gray-900 mb-3">About the Role</h2>
               <p className="text-gray-700 whitespace-pre-line">{vacancy.description}</p>
             </div>
 
-            {/* Responsibilities */}
-            {vacancy.responsibilities && vacancy.responsibilities.length > 0 && (
+            {vacancy.responsibilities && (
               <div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-3">Responsibilities</h2>
-                <ul className="list-disc list-inside space-y-2 text-gray-700">
-                  {vacancy.responsibilities.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
+                <p className="text-gray-700 whitespace-pre-line">{vacancy.responsibilities}</p>
               </div>
             )}
 
-            {/* Requirements */}
-            {vacancy.requirements && vacancy.requirements.length > 0 && (
+            {vacancy.requiredSkills && vacancy.requiredSkills.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">Requirements</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-3">Required Skills</h2>
                 <ul className="list-disc list-inside space-y-2 text-gray-700">
-                  {vacancy.requirements.map((item, index) => (
+                  {vacancy.requiredSkills.map((item: string, index: number) => (
                     <li key={index}>{item}</li>
                   ))}
                 </ul>
               </div>
             )}
 
-            {/* Benefits */}
-            {vacancy.benefits && vacancy.benefits.length > 0 && (
+            {vacancy.qualifications && (
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-3">Qualifications</h2>
+                <p className="text-gray-700 whitespace-pre-line">{vacancy.qualifications}</p>
+              </div>
+            )}
+
+            {vacancy.benefits && (
               <div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-3">Benefits</h2>
-                <ul className="list-disc list-inside space-y-2 text-gray-700">
-                  {vacancy.benefits.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
+                <p className="text-gray-700 whitespace-pre-line">{vacancy.benefits}</p>
               </div>
             )}
 
-            {/* Apply Button */}
-            {vacancy.status === 'PUBLISHED' && (
+            {vacancy.status === 'OPEN' && (
               <div className="pt-6 border-t">
                 {!isAuthenticated ? (
                   <Button onClick={handleApply} size="lg" fullWidth>

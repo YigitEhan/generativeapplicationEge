@@ -21,6 +21,7 @@ const ApplicantApply = lazy(() => import('./pages/Applicant/ApplyForm'));
 const ApplicantApplicationDetail = lazy(() => import('./pages/Applicant/ApplicationDetail'));
 const ApplicantTest = lazy(() => import('./pages/Applicant/TakeTest'));
 const ApplicantProfile = lazy(() => import('./pages/Applicant/Profile'));
+const ApplicantInterviews = lazy(() => import('./pages/Applicant/Interviews'));
 
 const RecruiterDashboard = lazy(() => import('./pages/Recruiter/Dashboard'));
 const RecruiterVacancies = lazy(() => import('./pages/Recruiter/Vacancies'));
@@ -74,6 +75,7 @@ function App() {
               <Route path="applicant/apply/:vacancyId" element={<ProtectedRoute allowedRoles={['APPLICANT']}><ApplicantApply /></ProtectedRoute>} />
               <Route path="applicant/applications/:id" element={<ProtectedRoute allowedRoles={['APPLICANT']}><ApplicantApplicationDetail /></ProtectedRoute>} />
               <Route path="applicant/test/:applicationId" element={<ProtectedRoute allowedRoles={['APPLICANT']}><ApplicantTest /></ProtectedRoute>} />
+              <Route path="applicant/interviews" element={<ProtectedRoute allowedRoles={['APPLICANT']}><ApplicantInterviews /></ProtectedRoute>} />
               <Route path="applicant/profile" element={<ProtectedRoute allowedRoles={['APPLICANT']}><ApplicantProfile /></ProtectedRoute>} />
 
               {/* Recruiter Routes */}
