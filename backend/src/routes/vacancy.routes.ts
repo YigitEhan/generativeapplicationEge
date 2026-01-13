@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { VacancyController } from '../controllers/vacancy.controller';
 import { authenticate, requireRole } from '../middleware/auth';
-import { getVacancyApplications } from '../controllers/application.controller';
+import { getVacancyApplications, applyToVacancy } from '../controllers/application.controller';
+import { upload } from '../middleware/upload';
 
 const router = Router();
 const vacancyController = new VacancyController();
@@ -12,6 +13,41 @@ const vacancyController = new VacancyController();
  *   name: Vacancies
  *   description: Vacancy management endpoints (Recruiter/Admin only)
  */
+
+// ============================================
+// PUBLIC ROUTES (No authentication required)
+// ============================================
+
+/**
+ * Get public vacancies (no auth required)
+ * GET /api/vacancies/public
+ */
+router.get('/public', vacancyController.getPublicVacancies.bind(vacancyController));
+
+/**
+ * Get public vacancy by ID (no auth required)
+ * GET /api/vacancies/public/:id
+ */
+router.get('/public/:id', vacancyController.getPublicVacancyById.bind(vacancyController));
+
+// ============================================
+// APPLICANT ROUTES
+// ============================================
+
+/**
+ * Apply to vacancy
+ * POST /api/vacancies/:id/apply
+ */
+router.post(
+  '/:id/apply',
+  authenticate,
+  upload.single('cvFile'),
+  applyToVacancy
+);
+
+// ============================================
+// RECRUITER/ADMIN ROUTES
+// ============================================
 
 /**
  * @swagger

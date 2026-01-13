@@ -17,9 +17,11 @@ export const InterviewsList = () => {
   const fetchInterviews = async () => {
     try {
       const response = await api.get('/interviewer/interviews');
-      setInterviews(response.data);
+      const data = response.data.data || response.data;
+      setInterviews(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch interviews:', error);
+      setInterviews([]);
     } finally {
       setLoading(false);
     }

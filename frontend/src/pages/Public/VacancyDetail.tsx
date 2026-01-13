@@ -23,7 +23,8 @@ export const VacancyDetail = () => {
   const fetchVacancy = async () => {
     try {
       setLoading(true);
-      const response = await vacanciesApi.getById(id!);
+      // Use public endpoint for vacancy details
+      const response = await vacanciesApi.getPublicById(id!);
       setVacancy(response.data);
     } catch (error) {
       console.error('Failed to fetch vacancy:', error);

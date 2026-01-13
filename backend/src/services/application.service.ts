@@ -397,6 +397,82 @@ export class ApplicationService {
   }
 
   /**
+   * Get all applications (Recruiter/Admin)
+   */
+  async getAllApplications(query: VacancyApplicationsQuery) {
+    const { status, page, limit, vacancyId } = query;
+
+    const where: any = {};
+
+    if (status) {
+      where.status = status;
+    }
+
+    if (vacancyId) {
+      where.vacancyId = vacancyId;
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [applications, total] = await Promise.all([
+      prisma.application.findMany({
+        where,
+        include: {
+          applicant: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
+          vacancy: {
+            select: {
+              id: true,
+              title: true,
+              department: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          cv: {
+            select: {
+              id: true,
+              fileName: true,
+              structuredData: true,
+              uploadedAt: true,
+            },
+          },
+          _count: {
+            select: {
+              evaluations: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        skip,
+        take: limit,
+      }),
+      prisma.application.count({ where }),
+    ]);
+
+    return {
+      data: applications,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  /**
    * Get all applications for a vacancy (Recruiter)
    */
   async getVacancyApplications(vacancyId: string, query: VacancyApplicationsQuery) {

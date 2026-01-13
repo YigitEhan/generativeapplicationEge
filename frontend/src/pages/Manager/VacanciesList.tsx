@@ -17,9 +17,11 @@ export const ManagerVacanciesList = () => {
   const fetchVacancies = async () => {
     try {
       const response = await api.get('/manager/vacancies');
-      setVacancies(response.data);
+      const data = response.data.data || response.data;
+      setVacancies(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch vacancies:', error);
+      setVacancies([]);
     } finally {
       setLoading(false);
     }

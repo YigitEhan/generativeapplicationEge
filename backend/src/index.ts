@@ -57,8 +57,8 @@ app.use('/api/vacancies', vacancyRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/candidates', candidateRoutes);
-app.use('/api/applications', evaluationRoutes); // Evaluation routes (mounted on /applications)
 app.use('/api/applications', applicationRoutes);
+app.use('/api/applications', evaluationRoutes); // Evaluation routes (/:id/evaluations, /:id/status)
 app.use('/api/manager', managerRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api', testRoutes); // Test routes (includes /vacancies/:id/test and /applications/:id/test)

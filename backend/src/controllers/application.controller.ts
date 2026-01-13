@@ -215,6 +215,26 @@ export const withdrawApplication = async (req: AuthRequest, res: Response) => {
 };
 
 /**
+ * Get all applications (Recruiter/Admin)
+ * GET /api/applications
+ */
+export const getAllApplications = async (req: AuthRequest, res: Response) => {
+  try {
+    const query = vacancyApplicationsQuerySchema.parse(req.query);
+    const result = await applicationService.getAllApplications(query);
+    res.json(result);
+  } catch (error: any) {
+    if (error.name === 'ZodError') {
+      return res.status(400).json({
+        error: 'Validation error',
+        details: error.errors,
+      });
+    }
+    res.status(400).json({ error: error.message });
+  }
+};
+
+/**
  * @swagger
  * /api/vacancies/{vacancyId}/applications:
  *   get:

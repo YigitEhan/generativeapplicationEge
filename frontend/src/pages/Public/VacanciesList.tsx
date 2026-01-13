@@ -22,9 +22,11 @@ export const VacanciesList = () => {
     try {
       setLoading(true);
       const response = await vacanciesApi.getPublic(filters);
-      setVacancies(response.data);
+      const data = response.data.data || response.data;
+      setVacancies(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch vacancies:', error);
+      setVacancies([]);
     } finally {
       setLoading(false);
     }

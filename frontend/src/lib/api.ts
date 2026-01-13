@@ -73,6 +73,9 @@ export const vacanciesApi = {
   getPublic: (params?: { department?: string; employmentType?: string }) =>
     api.get<Vacancy[]>('/vacancies/public', { params }),
 
+  getPublicById: (id: string) =>
+    api.get<Vacancy>(`/vacancies/public/${id}`),
+
   getById: (id: string) =>
     api.get<Vacancy>(`/vacancies/${id}`),
 

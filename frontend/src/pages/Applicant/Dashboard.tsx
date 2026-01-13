@@ -22,10 +22,14 @@ export const ApplicantDashboard = () => {
         applicationsApi.getMine(),
         vacanciesApi.getPublic({ }),
       ]);
-      setApplications(appsRes.data);
-      setVacancies(vacsRes.data.slice(0, 3)); // Show only 3 latest
+      const apps = appsRes.data.data || appsRes.data;
+      const vacs = vacsRes.data.data || vacsRes.data;
+      setApplications(Array.isArray(apps) ? apps : []);
+      setVacancies(Array.isArray(vacs) ? vacs.slice(0, 3) : []); // Show only 3 latest
     } catch (error) {
       console.error('Failed to fetch data:', error);
+      setApplications([]);
+      setVacancies([]);
     } finally {
       setLoading(false);
     }

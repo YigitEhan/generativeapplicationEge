@@ -16,9 +16,11 @@ export const MyApplications = () => {
   const fetchApplications = async () => {
     try {
       const response = await applicationsApi.getMine();
-      setApplications(response.data);
+      const data = response.data.data || response.data;
+      setApplications(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch applications:', error);
+      setApplications([]);
     } finally {
       setLoading(false);
     }

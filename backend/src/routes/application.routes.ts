@@ -8,6 +8,7 @@ import {
   withdrawApplication,
   getVacancyApplications,
   getApplicationById,
+  getAllApplications,
   updateApplicationStatus,
   downloadCV,
 } from '../controllers/application.controller';
@@ -70,8 +71,19 @@ router.post(
 // ============================================
 
 /**
+ * Get all applications (Recruiter/Admin)
+ * GET /api/applications
+ */
+router.get(
+  '/',
+  authenticate,
+  requireRole('RECRUITER', 'ADMIN'),
+  getAllApplications
+);
+
+/**
  * Get application detail (Recruiter/Admin)
- * Must be placed BEFORE /:id to avoid route conflicts
+ * Must be placed AFTER / to avoid route conflicts
  */
 router.get(
   '/:id',

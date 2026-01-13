@@ -13,10 +13,12 @@ export const Notifications = () => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await api.get('/notifications');
-      setNotifications(response.data);
+      const response = await api.get('/notifications/mine');
+      const data = response.data.notifications || [];
+      setNotifications(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
+      setNotifications([]);
     } finally {
       setLoading(false);
     }
