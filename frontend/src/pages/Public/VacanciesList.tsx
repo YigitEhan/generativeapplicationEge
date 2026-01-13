@@ -33,7 +33,7 @@ export const VacanciesList = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="spinner"></div>
       </div>
     );
   }
@@ -41,9 +41,10 @@ export const VacanciesList = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Hero Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Open Positions</h1>
-          <p className="text-lg text-gray-600">Find your next opportunity</p>
+          <p className="text-lg text-gray-600">Find your next opportunity and join our team</p>
         </div>
 
         {/* Filters */}
@@ -51,7 +52,7 @@ export const VacanciesList = () => {
           <select
             value={filters.department}
             onChange={(e) => setFilters({ ...filters, department: e.target.value })}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           >
             <option value="">All Departments</option>
             <option value="Engineering">Engineering</option>
@@ -65,7 +66,7 @@ export const VacanciesList = () => {
           <select
             value={filters.employmentType}
             onChange={(e) => setFilters({ ...filters, employmentType: e.target.value })}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           >
             <option value="">All Types</option>
             <option value="FULL_TIME">Full Time</option>
@@ -77,15 +78,13 @@ export const VacanciesList = () => {
 
         {/* Vacancies Grid */}
         {vacancies.length === 0 ? (
-          <Card>
-            <div className="text-center py-12">
-              <p className="text-gray-500">No open positions at the moment.</p>
-            </div>
-          </Card>
+          <div className="bg-white rounded-lg shadow p-12 text-center">
+            <p className="text-gray-500">No open positions at the moment.</p>
+          </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {vacancies.map((vacancy) => (
-              <Card key={vacancy.id} className="hover:shadow-md transition-shadow">
+              <div key={vacancy.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6">
                 <div className="space-y-4">
                   <div>
                     <div className="flex justify-between items-start mb-2">
@@ -121,7 +120,7 @@ export const VacanciesList = () => {
                     <Button fullWidth>View Details</Button>
                   </Link>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
         )}

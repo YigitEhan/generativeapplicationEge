@@ -509,7 +509,7 @@ export class VacancyService {
     const { departmentId, keyword, employmentType, location, experienceYears, page, limit } = query;
 
     const where: any = {
-      isPublished: true,
+      publishedAt: { not: null },
       status: 'OPEN',
     };
 
@@ -526,11 +526,7 @@ export class VacancyService {
       where.location = { contains: location, mode: 'insensitive' };
     }
 
-    if (experienceYears !== undefined) {
-      where.experienceYears = { lte: experienceYears };
-    }
-
-    // Keyword search in title, description, and requirements
+    // Keyword search in title and description
     if (keyword) {
       where.OR = [
         { title: { contains: keyword, mode: 'insensitive' } },
@@ -547,18 +543,15 @@ export class VacancyService {
           id: true,
           title: true,
           description: true,
-          requirements: true,
           responsibilities: true,
           qualifications: true,
           benefits: true,
-          salaryMin: true,
-          salaryMax: true,
+          salaryRange: true,
           location: true,
           employmentType: true,
-          experienceYears: true,
-          educationLevel: true,
+          requiredSkills: true,
           numberOfPositions: true,
-          deadline: true,
+          applicationDeadline: true,
           publishedAt: true,
           department: {
             select: {

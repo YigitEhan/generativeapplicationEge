@@ -336,11 +336,12 @@ async function main() {
 
   const interview1 = await prisma.interview.create({
     data: {
+      applicationId: application1.id,
       vacancyId: vacancy1.id,
       title: 'Technical Interview - Round 1',
       description: 'First round technical interview focusing on coding skills',
       round: 1,
-      interviewerId: interviewer.id,
+      scheduledById: recruiter.id,
       scheduledAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
       duration: 60,
       location: 'https://meet.google.com/abc-defg-hij',
@@ -352,20 +353,19 @@ async function main() {
   console.log(`✅ Created ${1} interview\n`);
 
   // ============================================
-  // 12. CREATE INTERVIEW ASSIGNMENTS
+  // 12. CREATE INTERVIEWER ASSIGNMENTS
   // ============================================
-  console.log('📅 Creating interview assignments...');
+  console.log('📅 Creating interviewer assignments...');
 
-  const interviewAssignment1 = await prisma.interviewAssignment.create({
+  const interviewerAssignment1 = await prisma.interviewerAssignment.create({
     data: {
       interviewId: interview1.id,
-      applicationId: application1.id,
-      assignedById: recruiter.id,
+      interviewerId: interviewer.id,
       attended: false,
     },
   });
 
-  console.log(`✅ Created ${1} interview assignment\n`);
+  console.log(`✅ Created ${1} interviewer assignment\n`);
 
   // ============================================
   // 13. CREATE AUDIT LOGS

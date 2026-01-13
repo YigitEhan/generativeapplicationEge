@@ -1,12 +1,15 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { ReactNode } from 'react';
 
 interface ProtectedRouteProps {
+  children: ReactNode;
   allowedRoles?: string[];
   redirectTo?: string;
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
   allowedRoles,
   redirectTo = '/login',
 }) => {
@@ -28,7 +31,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/unauthorized" replace />;
   }
 
-  return <Outlet />;
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;

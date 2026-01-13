@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { authenticate } from '../middleware/auth.middleware';
-import { requireRole } from '../middleware/roleGuard.middleware';
+import { authenticate, requireRole } from '../middleware/auth';
 import {
   scheduleInterview,
   rescheduleInterview,
@@ -24,7 +23,7 @@ const router = Router();
 router.post(
   '/applications/:id/interviews',
   authenticate,
-  requireRole(['RECRUITER', 'ADMIN']),
+  requireRole('RECRUITER', 'ADMIN'),
   scheduleInterview
 );
 
@@ -35,7 +34,7 @@ router.post(
 router.put(
   '/interviews/:id/reschedule',
   authenticate,
-  requireRole(['RECRUITER', 'ADMIN']),
+  requireRole('RECRUITER', 'ADMIN'),
   rescheduleInterview
 );
 
@@ -46,7 +45,7 @@ router.put(
 router.post(
   '/interviews/:id/cancel',
   authenticate,
-  requireRole(['RECRUITER', 'ADMIN']),
+  requireRole('RECRUITER', 'ADMIN'),
   cancelInterview
 );
 
@@ -57,7 +56,7 @@ router.post(
 router.post(
   '/interviews/:id/assign-interviewers',
   authenticate,
-  requireRole(['RECRUITER', 'ADMIN']),
+  requireRole('RECRUITER', 'ADMIN'),
   assignInterviewers
 );
 
@@ -72,7 +71,7 @@ router.post(
 router.get(
   '/interviewer/interviews',
   authenticate,
-  requireRole(['INTERVIEWER', 'MANAGER', 'ADMIN']),
+  requireRole('INTERVIEWER', 'MANAGER', 'ADMIN'),
   getInterviewerInterviews
 );
 
@@ -83,7 +82,7 @@ router.get(
 router.get(
   '/interviewer/interviews/:id',
   authenticate,
-  requireRole(['INTERVIEWER', 'MANAGER', 'ADMIN']),
+  requireRole('INTERVIEWER', 'MANAGER', 'ADMIN'),
   getInterviewDetails
 );
 
@@ -94,7 +93,7 @@ router.get(
 router.post(
   '/interviewer/interviews/:id/complete',
   authenticate,
-  requireRole(['INTERVIEWER', 'MANAGER', 'ADMIN']),
+  requireRole('INTERVIEWER', 'MANAGER', 'ADMIN'),
   completeInterview
 );
 

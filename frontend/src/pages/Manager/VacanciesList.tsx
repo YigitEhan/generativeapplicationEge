@@ -5,9 +5,9 @@ import { Button } from '../../components/UI/Button';
 import { StatusBadge } from '../../components/UI/StatusBadge';
 import api from '../../lib/api';
 
-export const Vacancies = () => {
+export const ManagerVacanciesList = () => {
   const [vacancies, setVacancies] = useState<any[]>([]);
-  const [filter, setFilter] = useState<'all' | 'open' | 'closed'>('all');
+  const [filter, setFilter] = useState<'all' | 'open' | 'closed' | 'pending'>('all');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export const Vacancies = () => {
 
   const fetchVacancies = async () => {
     try {
-      const response = await api.get('/vacancies');
+      const response = await api.get('/manager/vacancies');
       setVacancies(response.data);
     } catch (error) {
       console.error('Failed to fetch vacancies:', error);
@@ -27,9 +27,7 @@ export const Vacancies = () => {
 
   const filteredVacancies = vacancies.filter((vacancy) => {
     if (filter === 'all') return true;
-    if (filter === 'open') return vacancy.status === 'OPEN' || vacancy.status === 'PUBLISHED';
-    if (filter === 'closed') return vacancy.status === 'CLOSED';
-    return true;
+    return vacancy.status === filter.toUpperCase();
   });
 
   if (loading) {
@@ -42,19 +40,9 @@ export const Vacancies = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Manage Vacancies</h1>
-          <p className="text-gray-600">Create and manage job vacancies</p>
-        </div>
-        <Link to="/recruiter/vacancies/new">
-          <Button>
-            <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Create Vacancy
-          </Button>
-        </Link>
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Department Vacancies</h1>
+        <p className="text-gray-600">Monitor recruitment progress for your department</p>
       </div>
 
       {/* Filter Tabs */}
@@ -70,6 +58,12 @@ export const Vacancies = () => {
           className={`px-4 py-2 font-medium ${filter === 'open' ? 'border-b-2 border-green-600 text-green-600' : 'text-gray-600'}`}
         >
           Open
+        </button>
+        <button
+          onClick={() => setFilter('pending')}
+          className={`px-4 py-2 font-medium ${filter === 'pending' ? 'border-b-2 border-yellow-600 text-yellow-600' : 'text-gray-600'}`}
+        >
+          Pending Approval
         </button>
         <button
           onClick={() => setFilter('closed')}
@@ -98,10 +92,6 @@ export const Vacancies = () => {
 
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Department:</span>
-                    <span className="font-medium">{vacancy.department?.name}</span>
-                  </div>
-                  <div className="flex justify-between">
                     <span className="text-gray-500">Applications:</span>
                     <span className="font-medium">{vacancy._count?.applications || 0}</span>
                   </div>
@@ -109,18 +99,22 @@ export const Vacancies = () => {
                     <span className="text-gray-500">Positions:</span>
                     <span className="font-medium">{vacancy.numberOfPositions}</span>
                   </div>
-                  {vacancy.applicationDeadline && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Posted:</span>
+                    <span>{new Date(vacancy.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  {vacancy.deadline && (
                     <div className="flex justify-between">
                       <span className="text-gray-500">Deadline:</span>
-                      <span className={new Date(vacancy.applicationDeadline) < new Date() ? 'text-red-600 font-medium' : ''}>
-                        {new Date(vacancy.applicationDeadline).toLocaleDateString()}
+                      <span className={new Date(vacancy.deadline) < new Date() ? 'text-red-600 font-medium' : ''}>
+                        {new Date(vacancy.deadline).toLocaleDateString()}
                       </span>
                     </div>
                   )}
                 </div>
 
-                <Link to={`/recruiter/vacancies/${vacancy.id}`}>
-                  <Button size="sm" fullWidth>Manage</Button>
+                <Link to={`/manager/vacancies/${vacancy.id}`}>
+                  <Button size="sm" fullWidth variant="outline">View Applications</Button>
                 </Link>
               </div>
             </Card>
@@ -131,5 +125,5 @@ export const Vacancies = () => {
   );
 };
 
-export default Vacancies;
+export default ManagerVacanciesList;
 

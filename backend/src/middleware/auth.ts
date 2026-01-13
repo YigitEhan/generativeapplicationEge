@@ -127,3 +127,8 @@ export const optionalAuth = async (
   }
 };
 
+/**
+ * Alias for requireRole for backward compatibility
+ */
+export const authorize = requireRole;
+

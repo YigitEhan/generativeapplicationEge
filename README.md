@@ -6,10 +6,10 @@ A full-stack monorepo recruitment management system built with modern technologi
 
 ### Frontend
 - **React** with **Vite** and **TypeScript**
-- **React Router** for navigation
-- **Zustand** for state management
+- **React Router v6** for navigation
+- **React Query (TanStack Query)** + **Context API** for state management
 - **Axios** for API calls
-- **React Hook Form** with **Zod** validation
+- **TailwindCSS v4** for styling
 
 ### Backend
 - **Node.js** with **Express** and **TypeScript**
@@ -135,10 +135,17 @@ npm run prisma:migrate
 npm run prisma:seed
 ```
 
-The seed script creates:
-- Admin user: `admin@recruitment.com` / `admin123`
-- Recruiter user: `recruiter@recruitment.com` / `recruiter123`
-- Sample jobs, candidates, and applications
+The seed script creates demo users for all roles:
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@recruitment.com | admin123 |
+| Applicant | applicant@recruitment.com | applicant123 |
+| Recruiter | recruiter@recruitment.com | recruiter123 |
+| Manager | manager@recruitment.com | manager123 |
+| Interviewer | interviewer@recruitment.com | interviewer123 |
+
+Plus sample vacancies, applications, and test data.
 
 ## 🚀 Running the Application
 
@@ -303,6 +310,23 @@ npm run preview
 
 ## 🎯 Quick Start Summary
 
+### Recommended: Use Start Script
+
+**Windows:**
+```powershell
+powershell -ExecutionPolicy Bypass -File start.ps1
+```
+
+**Mac/Linux:**
+```bash
+chmod +x start.sh
+./start.sh
+```
+
+The start script automatically kills any processes on ports 3000 and 5173-5176, then starts the application.
+
+### Manual Start
+
 1. **Install dependencies**: `npm install` (from root)
 2. **Setup database**: Create PostgreSQL database
 3. **Configure backend**: Copy `.env.example` to `.env` in backend/
@@ -311,6 +335,27 @@ npm run preview
 6. **Start servers**: `npm run dev` (from root)
 7. **Login**: Use demo accounts from the table above
 8. **API Docs**: Visit http://localhost:3000/api-docs
+
+### If You Get "Port Already in Use" Error
+
+**Windows:**
+```powershell
+# Find and kill process on port 3000
+netstat -ano | findstr :3000
+taskkill /F /PID <PID_NUMBER>
+
+# Then start again
+npm run dev
+```
+
+**Mac/Linux:**
+```bash
+# Kill process on port 3000
+lsof -ti:3000 | xargs kill -9
+
+# Then start again
+npm run dev
+```
 
 ## 📊 Project Statistics
 

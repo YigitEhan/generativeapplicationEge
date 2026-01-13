@@ -152,9 +152,19 @@ export const VacancyDetail = () => {
             {/* Apply Button */}
             {vacancy.status === 'PUBLISHED' && (
               <div className="pt-6 border-t">
-                <Button onClick={handleApply} size="lg" fullWidth>
-                  Apply for this position
-                </Button>
+                {!isAuthenticated ? (
+                  <Button onClick={handleApply} size="lg" fullWidth>
+                    Sign in to Apply
+                  </Button>
+                ) : user?.role === 'APPLICANT' ? (
+                  <Button onClick={handleApply} size="lg" fullWidth>
+                    Apply for this position
+                  </Button>
+                ) : (
+                  <div className="text-center text-gray-600 py-4">
+                    Only applicants can apply for positions
+                  </div>
+                )}
               </div>
             )}
           </div>

@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { TestController } from '../controllers/test.controller';
-import { authenticate } from '../middleware/auth.middleware';
-import { requireRole } from '../middleware/roleGuard.middleware';
+import { authenticate, requireRole } from '../middleware/auth';
 
 const router = Router();
 const testController = new TestController();
@@ -16,7 +15,7 @@ const testController = new TestController();
 router.post(
   '/vacancies/:id/test',
   authenticate,
-  requireRole(['RECRUITER', 'ADMIN']),
+  requireRole('RECRUITER', 'ADMIN'),
   testController.createTest.bind(testController)
 );
 
@@ -26,7 +25,7 @@ router.post(
 router.get(
   '/vacancies/:id/tests',
   authenticate,
-  requireRole(['RECRUITER', 'ADMIN']),
+  requireRole('RECRUITER', 'ADMIN'),
   testController.getTestsForVacancy.bind(testController)
 );
 
@@ -36,7 +35,7 @@ router.get(
 router.post(
   '/applications/:id/test-invite',
   authenticate,
-  requireRole(['RECRUITER', 'ADMIN']),
+  requireRole('RECRUITER', 'ADMIN'),
   testController.inviteToTest.bind(testController)
 );
 
@@ -46,7 +45,7 @@ router.post(
 router.get(
   '/applications/:id/test-attempt',
   authenticate,
-  requireRole(['RECRUITER', 'ADMIN']),
+  requireRole('RECRUITER', 'ADMIN'),
   testController.getTestAttempt.bind(testController)
 );
 
@@ -60,7 +59,7 @@ router.get(
 router.get(
   '/applications/:id/test',
   authenticate,
-  requireRole(['APPLICANT']),
+  requireRole('APPLICANT'),
   testController.getTestForApplicant.bind(testController)
 );
 
@@ -70,7 +69,7 @@ router.get(
 router.post(
   '/applications/:id/test/submit',
   authenticate,
-  requireRole(['APPLICANT']),
+  requireRole('APPLICANT'),
   testController.submitQuiz.bind(testController)
 );
 
@@ -80,7 +79,7 @@ router.post(
 router.post(
   '/applications/:id/test/mark-complete',
   authenticate,
-  requireRole(['APPLICANT']),
+  requireRole('APPLICANT'),
   testController.markExternalComplete.bind(testController)
 );
 

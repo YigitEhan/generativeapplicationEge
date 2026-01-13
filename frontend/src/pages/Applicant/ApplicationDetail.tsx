@@ -38,8 +38,8 @@ export const ApplicationDetail = () => {
   }
 
   const timelineEvents = [
-    { date: application.createdAt, title: 'Application Submitted', description: 'Your application was received' },
-    ...(application.status !== 'APPLIED' ? [{ date: application.updatedAt, title: 'Status Updated', description: `Status changed to ${application.status}` }] : []),
+    { id: '1', timestamp: application.createdAt, date: application.createdAt, title: 'Application Submitted', description: 'Your application was received' },
+    ...(application.status !== 'APPLIED' ? [{ id: '2', timestamp: application.updatedAt, date: application.updatedAt, title: 'Status Updated', description: `Status changed to ${application.status}` }] : []),
   ];
 
   return (
