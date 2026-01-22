@@ -8,6 +8,7 @@ import {
   getInterviewerInterviews,
   getInterviewDetails,
   completeInterview,
+  getAllInterviews,
 } from '../controllers/interview.controller';
 
 const router = Router();
@@ -15,6 +16,17 @@ const router = Router();
 // ============================================
 // RECRUITER ROUTES
 // ============================================
+
+/**
+ * Get all interviews (Recruiter only)
+ * GET /api/interviews
+ */
+router.get(
+  '/interviews',
+  authenticate,
+  requireRole('RECRUITER', 'ADMIN'),
+  getAllInterviews
+);
 
 /**
  * Schedule an interview for an application

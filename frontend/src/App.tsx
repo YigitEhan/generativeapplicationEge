@@ -22,6 +22,7 @@ const ApplicantApplicationDetail = lazy(() => import('./pages/Applicant/Applicat
 const ApplicantTest = lazy(() => import('./pages/Applicant/TakeTest'));
 const ApplicantProfile = lazy(() => import('./pages/Applicant/Profile'));
 const ApplicantInterviews = lazy(() => import('./pages/Applicant/Interviews'));
+const ApplicantVacancyDetail = lazy(() => import('./pages/Applicant/VacancyDetail'));
 
 const RecruiterDashboard = lazy(() => import('./pages/Recruiter/Dashboard'));
 const RecruiterVacancies = lazy(() => import('./pages/Recruiter/Vacancies'));
@@ -71,7 +72,7 @@ function App() {
               <Route path="applicant/dashboard" element={<ProtectedRoute allowedRoles={['APPLICANT']}><ApplicantDashboard /></ProtectedRoute>} />
               <Route path="applicant/applications" element={<ProtectedRoute allowedRoles={['APPLICANT']}><ApplicantApplications /></ProtectedRoute>} />
               <Route path="applicant/vacancies" element={<ProtectedRoute allowedRoles={['APPLICANT']}><VacanciesList /></ProtectedRoute>} />
-              <Route path="applicant/vacancies/:id" element={<ProtectedRoute allowedRoles={['APPLICANT']}><VacancyDetail /></ProtectedRoute>} />
+              <Route path="applicant/vacancies/:id" element={<ProtectedRoute allowedRoles={['APPLICANT']}><ApplicantVacancyDetail /></ProtectedRoute>} />
               <Route path="applicant/apply/:vacancyId" element={<ProtectedRoute allowedRoles={['APPLICANT']}><ApplicantApply /></ProtectedRoute>} />
               <Route path="applicant/applications/:id" element={<ProtectedRoute allowedRoles={['APPLICANT']}><ApplicantApplicationDetail /></ProtectedRoute>} />
               <Route path="applicant/test/:applicationId" element={<ProtectedRoute allowedRoles={['APPLICANT']}><ApplicantTest /></ProtectedRoute>} />

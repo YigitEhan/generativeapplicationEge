@@ -447,3 +447,44 @@ export const completeInterview = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/interviews:
+ *   get:
+ *     summary: Get all interviews (Recruiter only)
+ *     tags: [Interviews]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [SCHEDULED, RESCHEDULED, COMPLETED, CANCELLED]
+ *       - in: query
+ *         name: from
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *       - in: query
+ *         name: to
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *     responses:
+ *       200:
+ *         description: List of interviews
+ */
+export const getAllInterviews = async (req: Request, res: Response) => {
+  try {
+    const { status, from, to } = req.query;
+    const interviews = await interviewService.getAllInterviews({
+      status: status as string,
+      from: from as string,
+      to: to as string,
+    });
+    res.json(interviews);
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};

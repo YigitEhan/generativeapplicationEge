@@ -850,5 +850,81 @@ export class InterviewService {
 
     return interview;
   }
+
+  /**
+   * Get all interviews (RECRUITER only)
+   */
+  async getAllInterviews(query: { status?: string; from?: string; to?: string }) {
+    const where: any = {};
+
+    if (query.status) {
+      where.status = query.status;
+    }
+
+    if (query.from || query.to) {
+      where.scheduledAt = {};
+      if (query.from) {
+        where.scheduledAt.gte = new Date(query.from);
+      }
+      if (query.to) {
+        where.scheduledAt.lte = new Date(query.to);
+      }
+    }
+
+    const interviews = await prisma.interview.findMany({
+      where,
+      include: {
+        application: {
+          include: {
+            applicant: {
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+            vacancy: {
+              select: {
+                id: true,
+                title: true,
+                department: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        interviewers: {
+          include: {
+            interviewer: {
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+        scheduledBy: {
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+      orderBy: {
+        scheduledAt: 'desc',
+      },
+    });
+
+    return interviews;
+  }
 }
 

@@ -30,28 +30,33 @@ export const RecruiterDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const [vacanciesRes, applicationsRes, interviewsRes] = await Promise.all([
+      // Fetch vacancies and applications - interviews are counted from applications with scheduled interviews
+      const [vacanciesRes, applicationsRes] = await Promise.all([
         api.get('/vacancies'),
         api.get('/applications'),
-        api.get('/interviews'),
       ]);
 
       // Handle paginated responses
       const vacancies = vacanciesRes.data.data || vacanciesRes.data || [];
       const applications = applicationsRes.data.data || applicationsRes.data || [];
-      const interviews = interviewsRes.data.data || interviewsRes.data || [];
 
       // Ensure arrays
       const vacanciesArr = Array.isArray(vacancies) ? vacancies : [];
       const applicationsArr = Array.isArray(applications) ? applications : [];
-      const interviewsArr = Array.isArray(interviews) ? interviews : [];
+
+      // Count interviews from applications that have interview status
+      const interviewsScheduled = applicationsArr.filter((a: any) =>
+        a.status === 'INTERVIEW_SCHEDULED' || a.status === 'INTERVIEW'
+      ).length;
 
       setStats({
         totalVacancies: vacanciesArr.length,
         activeVacancies: vacanciesArr.filter((v: any) => v.status === 'OPEN').length,
         totalApplications: applicationsArr.length,
-        pendingApplications: applicationsArr.filter((a: any) => a.status === 'SUBMITTED').length,
-        interviewsScheduled: interviewsArr.filter((i: any) => i.status === 'SCHEDULED').length,
+        pendingApplications: applicationsArr.filter((a: any) =>
+          a.status === 'SUBMITTED' || a.status === 'APPLIED' || a.status === 'SCREENING'
+        ).length,
+        interviewsScheduled,
       });
 
       setRecentApplications(applicationsArr.slice(0, 5));

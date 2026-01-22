@@ -82,8 +82,17 @@ router.get(
 );
 
 /**
+ * Download CV file - MUST be before /:id to avoid route conflicts
+ */
+router.get(
+  '/cv/:cvId/download',
+  authenticate,
+  downloadCV
+);
+
+/**
  * Get application detail (Recruiter/Admin)
- * Must be placed AFTER / to avoid route conflicts
+ * MUST be placed AFTER specific routes to avoid conflicts
  */
 router.get(
   '/:id',
@@ -100,15 +109,6 @@ router.put(
   authenticate,
   requireRole('RECRUITER', 'ADMIN'),
   updateApplicationStatus
-);
-
-/**
- * Download CV file
- */
-router.get(
-  '/cv/:cvId/download',
-  authenticate,
-  downloadCV
 );
 
 export default router;

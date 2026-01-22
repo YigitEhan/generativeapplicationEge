@@ -21,8 +21,8 @@ export const ApplicantDashboard = () => {
         applicationsApi.getMine(),
         vacanciesApi.getPublic(),
       ]);
-      const apps = appsRes.data.data || appsRes.data;
-      const vacs = vacsRes.data.data || vacsRes.data;
+      const appsData = appsRes.data as any; const apps = appsData.data || appsData;
+      const vacsData = vacsRes.data as any; const vacs = vacsData.data || vacsData;
       setApplications(Array.isArray(apps) ? apps : []);
       setVacancies(Array.isArray(vacs) ? vacs.slice(0, 3) : []); // Show only 3 latest
     } catch (error) {
@@ -165,4 +165,5 @@ export const ApplicantDashboard = () => {
 };
 
 export default ApplicantDashboard;
+
 
